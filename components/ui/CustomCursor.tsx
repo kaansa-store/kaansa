@@ -58,8 +58,8 @@ export function CustomCursor() {
       animate={{
         width: isHovering ? 28 : 8,
         height: isHovering ? 28 : 8,
-        backgroundColor: isHovering ? 'transparent' : 'var(--color-gold)',
-        border: isHovering ? '1.5px solid var(--color-gold)' : '0px solid transparent',
+        backgroundColor: isHovering ? 'rgba(201, 162, 75, 0)' : 'rgba(201, 162, 75, 1)',
+        border: isHovering ? '1.5px solid rgba(201, 162, 75, 1)' : '0px solid rgba(201, 162, 75, 0)',
       }}
       transition={{ duration: 0.15 }}
       aria-hidden="true"

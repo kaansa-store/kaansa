@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { getCollection, getCollections } from '@/lib/shopify';
 import ProductGrid from '@/components/product/ProductGrid';
 import CollectionFilters from '@/components/product/CollectionFilters';
@@ -9,6 +10,19 @@ interface PageProps {
   params: Promise<{ handle: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
+
+const BANNER_MAP: Record<string, string> = {
+  all: '/images/collections-all.jpg',
+  'pooja-essentials': '/images/collections-pooja.jpg',
+  'home-decor': '/images/collections-decor.jpg',
+  'kitchen-tableware': '/images/collections-kitchen.jpg',
+};
+
+const TYPE_BANNER_MAP: Record<string, string> = {
+  'Pooja Essentials': '/images/collections-pooja.jpg',
+  'Home Decor': '/images/collections-decor.jpg',
+  'Kitchen & Tableware': '/images/collections-kitchen.jpg',
+};
 
 export async function generateStaticParams() {
   const collections = await getCollections();
@@ -58,6 +72,8 @@ export default async function CollectionDetailPage(props: PageProps) {
     notFound();
   }
 
+  const bannerImage = (type && TYPE_BANNER_MAP[type]) || BANNER_MAP[handle] || '/images/collections-all.jpg';
+
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
@@ -76,19 +92,37 @@ export default async function CollectionDetailPage(props: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
-      <div className="max-w-7xl mx-auto px-6 py-12 lg:py-20">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <h1 className="font-[family-name:var(--font-display)] text-4xl md:text-6xl text-[var(--color-text)]">
-            {collection.title}
+      {/* Visual Header Banner */}
+      <div className="relative w-full overflow-hidden bg-[#1A0E08] text-white py-16 md:py-24 mb-10">
+        <div className="absolute inset-0 z-0">
+          <Image
+            src={bannerImage}
+            alt={collection.title}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover opacity-35 scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#140B06] via-[#140B06]/70 to-black/60" />
+        </div>
+
+        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+          <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-[var(--color-gold)] font-medium font-[family-name:var(--font-body)] mb-4">
+            Handcrafted Catalogue
+          </span>
+          <h1 className="font-[family-name:var(--font-display)] text-4xl sm:text-5xl md:text-6xl text-[#FBF5EA] mb-4">
+            {type || collection.title}
           </h1>
-          <Divider className="my-3" />
+          <Divider className="my-3 opacity-60" />
           {collection.description && (
-            <p className="font-[family-name:var(--font-body)] text-sm md:text-base text-[var(--color-muted)] leading-relaxed">
+            <p className="font-[family-name:var(--font-body)] text-sm md:text-base text-[#F3E7D3]/85 leading-relaxed max-w-xl mx-auto font-light">
               {collection.description}
             </p>
           )}
         </div>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-6 pb-20">
         <CollectionFilters
           currentType={type}
           currentSort={sort}
