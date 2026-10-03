@@ -1,26 +1,89 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-bg: #FBF5EA;
+  --color-surface: #F0E4CC;
+  --color-surface-2: #E8D9BC;
+  --color-text: #2C1A0E;
+  --color-muted: #7A5A44;
+  --color-subtle: #B09070;
+  --color-accent: #8A4A1C;
+  --color-accent-hover: #6E3A14;
+  --color-gold: #C9A24B;
+  --color-gold-light: #E8D08A;
+  --color-border: #D9C9B0;
+  --color-border-strong: #B09070;
+  --color-success: #3F6B3A;
+  --color-danger: #9B2C2C;
+  --color-warning: #8A6A1C;
+  --font-display: var(--font-cormorant);
+  --font-heading: var(--font-playfair);
+  --font-body: var(--font-jost);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --color-bg: #FBF5EA;
+    --color-surface: #F0E4CC;
+    --color-surface-2: #E8D9BC;
+    --color-text: #2C1A0E;
+    --color-muted: #7A5A44;
+    --color-subtle: #B09070;
+    --color-accent: #8A4A1C;
+    --color-accent-hover: #6E3A14;
+    --color-gold: #C9A24B;
+    --color-gold-light: #E8D08A;
+    --color-border: #D9C9B0;
+    --color-border-strong: #B09070;
+    --color-success: #3F6B3A;
+    --color-danger: #9B2C2C;
+    --color-warning: #8A6A1C;
+    
+    --font-display: var(--font-cormorant);
+    --font-heading: var(--font-playfair);
+    --font-body: var(--font-jost);
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+    --space-20: 80px;
+    --space-24: 96px;
+    --space-32: 128px;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body), sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: var(--color-surface);
+    color: var(--color-text);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
