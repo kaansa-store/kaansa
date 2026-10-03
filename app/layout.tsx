@@ -41,8 +41,8 @@ export const metadata: Metadata = {
   description:
     'Handcrafted brass and copper pieces for the home, the altar, and the table. Made by artisans in India.',
   icons: {
-    icon: '/logo.jpeg',
-    apple: '/logo.jpeg',
+    icon: '/icon.png',
+    apple: '/icon.png',
   },
   openGraph: {
     siteName: 'Kaansa',

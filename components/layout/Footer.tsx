@@ -44,21 +44,21 @@ export function Footer({ menuItems = [] }: FooterProps) {
               href="/"
               className="inline-flex items-center gap-3.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)]"
             >
-              <div className="relative w-11 h-11 rounded-full overflow-hidden border border-[var(--color-gold)]/50 shadow-xs flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
+              <div className="relative w-12 h-12 flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
                 <Image
-                  src="/images/logo.jpeg"
-                  alt="Kaansa Heritage Logo"
+                  src="/images/kaansa-emblem.png"
+                  alt="Kaansa Sacred Knot Logo"
                   fill
-                  sizes="44px"
-                  className="object-cover scale-[1.35] object-center"
+                  sizes="48px"
+                  className="object-contain"
                 />
               </div>
-              <div>
-                <span className="block font-[family-name:var(--font-display)] text-2xl tracking-[0.05em] text-[var(--color-text)] group-hover:text-[var(--color-accent)] transition-colors">
+              <div className="flex flex-col">
+                <span className="block font-[family-name:var(--font-display)] text-2xl md:text-3xl tracking-[0.16em] text-[var(--color-text)] group-hover:text-[var(--color-accent)] transition-colors leading-none">
                   KAANSA
                 </span>
-                <span className="block text-[10px] uppercase tracking-[0.16em] text-[var(--color-gold)] font-[family-name:var(--font-body)]">
-                  Crafted for eternity
+                <span className="block text-[10px] uppercase tracking-[0.2em] text-[var(--color-gold)] font-[family-name:var(--font-body)] mt-1.5 font-medium">
+                  Rooted in tradition • Crafted for eternity
                 </span>
               </div>
             </Link>

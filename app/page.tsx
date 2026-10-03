@@ -61,6 +61,18 @@ export default async function HomePage() {
 
         {/* Hero Content */}
         <div className="relative z-10 max-w-4xl mx-auto px-6 py-28 text-center flex flex-col items-center">
+          {/* Iconic Brand Emblem */}
+          <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 mb-6 transition-transform duration-700 hover:scale-110">
+            <Image
+              src="/images/kaansa-emblem.png"
+              alt="Kaansa Sacred Knot Emblem"
+              fill
+              priority
+              sizes="(max-width: 768px) 80px, 96px"
+              className="object-contain drop-shadow-[0_4px_30px_rgba(201,162,75,0.55)]"
+            />
+          </div>
+
           <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-[var(--color-gold)]/40 bg-black/40 backdrop-blur-md text-[var(--color-gold)] text-xs uppercase tracking-[0.22em] font-[family-name:var(--font-body)] mb-8">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-gold)] animate-pulse" />
             Heirloom Artisan Metalcraft

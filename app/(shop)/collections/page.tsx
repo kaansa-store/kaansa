@@ -74,7 +74,18 @@ export default async function CollectionsPage() {
         {/* Warm luxury overlay */}
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#1A0F08]/85 via-[#1A0F08]/65 to-[var(--color-bg)]" />
 
-        <div className="relative z-10 max-w-5xl mx-auto px-6 pt-24 pb-20 md:pt-32 md:pb-28 text-center">
+        <div className="relative z-10 max-w-5xl mx-auto px-6 pt-24 pb-20 md:pt-32 md:pb-28 text-center flex flex-col items-center">
+          <div className="relative w-14 h-14 sm:w-16 sm:h-16 mb-5 transition-transform duration-500 hover:scale-110">
+            <Image
+              src="/images/kaansa-emblem.png"
+              alt="Kaansa Sacred Knot Emblem"
+              fill
+              priority
+              sizes="64px"
+              className="object-contain drop-shadow-[0_4px_20px_rgba(201,162,75,0.45)]"
+            />
+          </div>
+
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[var(--color-gold)]/40 bg-[var(--color-gold)]/10 text-[var(--color-gold)] text-xs uppercase tracking-[0.2em] font-[family-name:var(--font-body)] mb-6 backdrop-blur-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-gold)] animate-pulse" />
             Handcrafted Indian Metalware

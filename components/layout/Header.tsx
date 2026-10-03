@@ -80,24 +80,29 @@ export function Header({ menuItems = [] }: HeaderProps) {
         </div>
 
         {/* Logo */}
-        <div className="flex-1 md:flex-none text-center md:text-left">
+        <div className="flex-1 md:flex-none flex items-center justify-center md:justify-start">
           <Link
             href="/"
-            className="inline-flex items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)] group"
+            className="inline-flex items-center gap-2.5 sm:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)] group py-1"
           >
-            <div className="relative w-8 h-8 md:w-9 md:h-9 rounded-full overflow-hidden border border-[var(--color-gold)]/40 shadow-xs flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
+            <div className="relative w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
               <Image
-                src="/images/logo.jpeg"
-                alt="Kaansa Heritage Logo"
+                src="/images/kaansa-emblem.png"
+                alt="Kaansa Sacred Knot Emblem"
                 fill
                 priority
-                sizes="36px"
-                className="object-cover scale-[1.35] object-center"
+                sizes="44px"
+                className="object-contain"
               />
             </div>
-            <span className="font-[family-name:var(--font-display)] text-2xl md:text-3xl tracking-[0.05em] text-[var(--color-text)] group-hover:text-[var(--color-accent)] transition-colors">
-              KAANSA
-            </span>
+            <div className="flex flex-col items-start justify-center">
+              <span className="font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-medium tracking-[0.15em] text-[var(--color-text)] group-hover:text-[var(--color-accent)] transition-colors leading-none">
+                KAANSA
+              </span>
+              <span className="text-[9px] uppercase tracking-[0.22em] text-[var(--color-gold)] font-[family-name:var(--font-body)] font-medium mt-1 hidden sm:block">
+                Artisan Heritage
+              </span>
+            </div>
           </Link>
         </div>
 
