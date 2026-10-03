@@ -85,13 +85,13 @@ export function Header({ menuItems = [] }: HeaderProps) {
             href="/"
             className="inline-flex items-center gap-2.5 sm:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)] group py-1"
           >
-            <div className="relative w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
+            <div className="relative w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
               <Image
                 src="/images/kaansa-emblem.png"
                 alt="Kaansa Sacred Knot Emblem"
                 fill
                 priority
-                sizes="44px"
+                sizes="48px"
                 className="object-contain"
               />
             </div>

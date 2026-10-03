@@ -62,14 +62,14 @@ export default async function HomePage() {
         {/* Hero Content */}
         <div className="relative z-10 max-w-4xl mx-auto px-6 py-28 text-center flex flex-col items-center">
           {/* Iconic Brand Emblem */}
-          <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 mb-6 transition-transform duration-700 hover:scale-110">
+          <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 mb-6 transition-transform duration-700 hover:scale-105">
             <Image
               src="/images/kaansa-emblem.png"
               alt="Kaansa Sacred Knot Emblem"
               fill
               priority
-              sizes="(max-width: 768px) 80px, 96px"
-              className="object-contain drop-shadow-[0_4px_30px_rgba(201,162,75,0.55)]"
+              sizes="(max-width: 640px) 96px, (max-width: 768px) 112px, 144px"
+              className="object-contain drop-shadow-[0_6px_36px_rgba(201,162,75,0.6)]"
             />
           </div>
 

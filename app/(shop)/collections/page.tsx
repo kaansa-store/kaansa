@@ -75,14 +75,14 @@ export default async function CollectionsPage() {
         <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#1A0F08]/85 via-[#1A0F08]/65 to-[var(--color-bg)]" />
 
         <div className="relative z-10 max-w-5xl mx-auto px-6 pt-24 pb-20 md:pt-32 md:pb-28 text-center flex flex-col items-center">
-          <div className="relative w-14 h-14 sm:w-16 sm:h-16 mb-5 transition-transform duration-500 hover:scale-110">
+          <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 mb-6 transition-transform duration-500 hover:scale-105">
             <Image
               src="/images/kaansa-emblem.png"
               alt="Kaansa Sacred Knot Emblem"
               fill
               priority
-              sizes="64px"
-              className="object-contain drop-shadow-[0_4px_20px_rgba(201,162,75,0.45)]"
+              sizes="(max-width: 640px) 80px, (max-width: 768px) 96px, 112px"
+              className="object-contain drop-shadow-[0_6px_30px_rgba(201,162,75,0.55)]"
             />
           </div>
 
