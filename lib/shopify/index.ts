@@ -10,17 +10,27 @@ import {
   getCollectionsQuery,
 } from './queries/collection';
 import {
+  createCartMutation,
+  addToCartMutation,
+  updateCartMutation,
+  removeFromCartMutation,
+  getCartQuery,
+} from './queries/cart';
+import {
   MenuItem,
   ShopifyMenu,
   ShopifyProduct,
   Product,
   ShopifyCollection,
   Collection,
+  ShopifyCart,
+  Cart,
 } from './types';
 import {
   reshapeProduct,
   reshapeProducts,
   reshapeCollection,
+  reshapeCart,
   reshapeEdges,
 } from './reshape';
 
@@ -155,18 +165,15 @@ export async function getCollection(
     maxPrice?: number;
   }
 ): Promise<Collection | null> {
-  // If requesting "all", aggregate all products
   if (handle === 'all') {
     let allProducts = await getProducts({ first: 100 });
 
-    // Filter by type
     if (options?.type) {
       allProducts = allProducts.filter(
         (p) => p.productType.toLowerCase() === options.type!.toLowerCase()
       );
     }
 
-    // Filter by price
     if (options?.minPrice !== undefined || options?.maxPrice !== undefined) {
       allProducts = allProducts.filter((p) => {
         const price = parseFloat(p.priceRange.minVariantPrice.amount);
@@ -176,7 +183,6 @@ export async function getCollection(
       });
     }
 
-    // Sort
     if (options?.sort === 'price-asc') {
       allProducts.sort(
         (a, b) =>
@@ -240,6 +246,121 @@ export async function getCollection(
     return reshapeCollection(res.data.collection);
   } catch (error) {
     console.error(`Failed to fetch collection "${handle}":`, error);
+    return null;
+  }
+}
+
+/* ================= CART OPERATIONS ================= */
+
+export async function createCart(lines: { merchandiseId: string; quantity: number }[] = []): Promise<Cart | null> {
+  try {
+    const res = await shopifyFetch<{
+      cartCreate: {
+        cart: ShopifyCart | null;
+        userErrors: { field: string; message: string }[];
+      };
+    }>({
+      query: createCartMutation,
+      variables: {
+        input: {
+          lines: lines.length > 0 ? lines : undefined,
+        },
+      },
+      cache: 'no-store',
+    });
+
+    if (res.data.cartCreate.userErrors?.length) {
+      console.error('[Shopify Cart UserErrors]', res.data.cartCreate.userErrors);
+    }
+
+    return reshapeCart(res.data.cartCreate.cart);
+  } catch (error) {
+    console.error('Failed to create cart:', error);
+    return null;
+  }
+}
+
+export async function getCart(cartId: string): Promise<Cart | null> {
+  try {
+    const res = await shopifyFetch<{ cart: ShopifyCart | null }>({
+      query: getCartQuery,
+      variables: { cartId },
+      cache: 'no-store',
+    });
+
+    return reshapeCart(res.data.cart);
+  } catch (error) {
+    console.error(`Failed to get cart ${cartId}:`, error);
+    return null;
+  }
+}
+
+export async function addToCart(
+  cartId: string,
+  lines: { merchandiseId: string; quantity: number }[]
+): Promise<Cart | null> {
+  try {
+    const res = await shopifyFetch<{
+      cartLinesAdd: {
+        cart: ShopifyCart | null;
+        userErrors: { field: string; message: string }[];
+      };
+    }>({
+      query: addToCartMutation,
+      variables: { cartId, lines },
+      cache: 'no-store',
+    });
+
+    if (res.data.cartLinesAdd.userErrors?.length) {
+      console.error('[Shopify AddToCart UserErrors]', res.data.cartLinesAdd.userErrors);
+    }
+
+    return reshapeCart(res.data.cartLinesAdd.cart);
+  } catch (error) {
+    console.error('Failed to add to cart:', error);
+    return null;
+  }
+}
+
+export async function updateCart(
+  cartId: string,
+  lines: { id: string; quantity: number }[]
+): Promise<Cart | null> {
+  try {
+    const res = await shopifyFetch<{
+      cartLinesUpdate: {
+        cart: ShopifyCart | null;
+        userErrors: { field: string; message: string }[];
+      };
+    }>({
+      query: updateCartMutation,
+      variables: { cartId, lines },
+      cache: 'no-store',
+    });
+
+    return reshapeCart(res.data.cartLinesUpdate.cart);
+  } catch (error) {
+    console.error('Failed to update cart:', error);
+    return null;
+  }
+}
+
+export async function removeFromCart(cartId: string, lineIds: string[]): Promise<Cart | null> {
+  try {
+    const res = await shopifyFetch<{
+      cartLinesRemove: {
+        cart: ShopifyCart | null;
+        userErrors: { field: string; message: string }[];
+      };
+    }>({
+      query: removeFromCartMutation,
+      variables: { cartId, lineIds },
+      cache: 'no-store',
+    });
+
+    return reshapeCart(res.data.cartLinesRemove.cart);
+  } catch (error) {
+    console.error('Failed to remove from cart:', error);
     return null;
   }
 }

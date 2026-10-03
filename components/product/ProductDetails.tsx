@@ -5,15 +5,18 @@ import { Product } from '@/lib/shopify/types';
 import PriceDisplay from './PriceDisplay';
 import Button from '@/components/ui/Button';
 import Divider from '@/components/ui/Divider';
+import { useCart } from '@/components/cart/CartContext';
+import { buyNowAction } from '@/app/(shop)/cart/actions';
 
 export interface ProductDetailsProps {
   product: Product;
-  onAddToCart?: (variantId: string, quantity: number) => void;
-  isAdding?: boolean;
 }
 
-export function ProductDetails({ product, onAddToCart, isAdding = false }: ProductDetailsProps) {
+export function ProductDetails({ product }: ProductDetailsProps) {
   const [quantity, setQuantity] = useState(1);
+  const [isBuyingNow, setIsBuyingNow] = useState(false);
+  const { addItem, isPending } = useCart();
+
   const firstVariant = product.variants?.[0];
   const isAvailable = product.availableForSale && (firstVariant?.availableForSale ?? true);
 
@@ -21,10 +24,19 @@ export function ProductDetails({ product, onAddToCart, isAdding = false }: Produ
   const compareAtPrice = firstVariant?.compareAtPrice?.amount || product.compareAtPriceRange?.minVariantPrice.amount;
   const currencyCode = firstVariant?.price.currencyCode || product.priceRange.minVariantPrice.currencyCode;
 
-  const handleAdd = () => {
+  const handleAddToCart = async () => {
     if (!isAvailable || !firstVariant) return;
-    if (onAddToCart) {
-      onAddToCart(firstVariant.id, quantity);
+    await addItem(firstVariant.id, quantity);
+  };
+
+  const handleBuyNow = async () => {
+    if (!isAvailable || !firstVariant) return;
+    try {
+      setIsBuyingNow(true);
+      await buyNowAction(firstVariant.id, quantity);
+    } catch (e) {
+      console.error(e);
+      setIsBuyingNow(false);
     }
   };
 
@@ -57,12 +69,12 @@ export function ProductDetails({ product, onAddToCart, isAdding = false }: Produ
 
       <Divider className="my-2" />
 
-      {/* Quantity & Add to Cart */}
-      <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+      {/* Quantity & CTA Buttons */}
+      <div className="mt-6 flex flex-col gap-4">
         {isAvailable && (
-          <div className="flex items-center border border-[var(--color-border)] bg-[var(--color-bg)] h-12 w-32 px-3 justify-between">
-            <span className="text-xs uppercase tracking-wider text-[var(--color-muted)]">Qty</span>
-            <div className="flex items-center space-x-2">
+          <div className="flex items-center border border-[var(--color-border)] bg-[var(--color-bg)] h-12 w-36 px-4 justify-between">
+            <span className="text-xs uppercase tracking-wider text-[var(--color-muted)] font-medium">Qty</span>
+            <div className="flex items-center space-x-3">
               <button
                 type="button"
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -71,7 +83,7 @@ export function ProductDetails({ product, onAddToCart, isAdding = false }: Produ
               >
                 -
               </button>
-              <span className="text-sm font-medium w-4 text-center">{quantity}</span>
+              <span className="text-sm font-medium w-5 text-center">{quantity}</span>
               <button
                 type="button"
                 onClick={() => setQuantity((q) => q + 1)}
@@ -84,15 +96,29 @@ export function ProductDetails({ product, onAddToCart, isAdding = false }: Produ
           </div>
         )}
 
-        <Button
-          type="button"
-          onClick={handleAdd}
-          disabled={!isAvailable || isAdding}
-          className="flex-1 h-12"
-          variant="primary"
-        >
-          {isAdding ? 'Adding...' : isAvailable ? 'Add to cart' : 'Sold out'}
-        </Button>
+        <div className="flex flex-col sm:flex-row items-stretch gap-4">
+          <Button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={!isAvailable || isPending}
+            className="flex-1 h-13"
+            variant="primary"
+          >
+            {isPending ? 'Adding to cart...' : isAvailable ? 'Add to cart' : 'Sold out'}
+          </Button>
+
+          {isAvailable && (
+            <Button
+              type="button"
+              onClick={handleBuyNow}
+              disabled={isBuyingNow}
+              className="flex-1 h-13"
+              variant="secondary"
+            >
+              {isBuyingNow ? 'Redirecting...' : 'Buy Now'}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Details Section */}
