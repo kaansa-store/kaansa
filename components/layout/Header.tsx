@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import clsx from 'clsx';
 import { MenuItem } from '@/lib/shopify/types';
 import { useCart } from '@/components/cart/CartContext';
@@ -82,9 +83,21 @@ export function Header({ menuItems = [] }: HeaderProps) {
         <div className="flex-1 md:flex-none text-center md:text-left">
           <Link
             href="/"
-            className="inline-block font-[family-name:var(--font-display)] text-2xl md:text-3xl tracking-[0.04em] text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)]"
+            className="inline-flex items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)] group"
           >
-            KAANSA
+            <div className="relative w-8 h-8 md:w-9 md:h-9 rounded-full overflow-hidden border border-[var(--color-gold)]/40 shadow-xs flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
+              <Image
+                src="/images/logo.jpeg"
+                alt="Kaansa Heritage Logo"
+                fill
+                priority
+                sizes="36px"
+                className="object-cover scale-[1.35] object-center"
+              />
+            </div>
+            <span className="font-[family-name:var(--font-display)] text-2xl md:text-3xl tracking-[0.05em] text-[var(--color-text)] group-hover:text-[var(--color-accent)] transition-colors">
+              KAANSA
+            </span>
           </Link>
         </div>
 

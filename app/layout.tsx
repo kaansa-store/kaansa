@@ -40,12 +40,17 @@ export const metadata: Metadata = {
   },
   description:
     'Handcrafted brass and copper pieces for the home, the altar, and the table. Made by artisans in India.',
+  icons: {
+    icon: '/logo.jpeg',
+    apple: '/logo.jpeg',
+  },
   openGraph: {
     siteName: 'Kaansa',
     locale: 'en_IN',
     type: 'website',
+    images: [{ url: '/logo.jpeg', width: 1200, height: 1200, alt: 'Kaansa Heritage Metalware' }],
   },
-  twitter: { card: 'summary_large_image' },
+  twitter: { card: 'summary_large_image', images: ['/logo.jpeg'] },
   robots: { index: true, follow: true },
 };
 
