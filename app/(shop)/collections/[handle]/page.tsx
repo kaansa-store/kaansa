@@ -58,6 +58,7 @@ export default async function CollectionDetailPage(props: PageProps) {
 
   const sort = typeof search.sort === 'string' ? search.sort : 'featured';
   const type = typeof search.type === 'string' ? search.type : undefined;
+  const q = typeof search.q === 'string' ? search.q : undefined;
   const minPrice = typeof search.min === 'string' ? parseFloat(search.min) : undefined;
   const maxPrice = typeof search.max === 'string' ? parseFloat(search.max) : undefined;
 
@@ -66,6 +67,7 @@ export default async function CollectionDetailPage(props: PageProps) {
     type,
     minPrice,
     maxPrice,
+    q,
   });
 
   if (!collection) {

@@ -163,10 +163,22 @@ export async function getCollection(
     type?: string;
     minPrice?: number;
     maxPrice?: number;
+    q?: string;
   }
 ): Promise<Collection | null> {
   if (handle === 'all') {
     let allProducts = await getProducts({ first: 100 });
+
+    if (options?.q) {
+      const term = options.q.toLowerCase().trim();
+      allProducts = allProducts.filter(
+        (p) =>
+          p.title.toLowerCase().includes(term) ||
+          p.description.toLowerCase().includes(term) ||
+          p.tags.some((t) => t.toLowerCase().includes(term)) ||
+          p.productType.toLowerCase().includes(term)
+      );
+    }
 
     if (options?.type) {
       allProducts = allProducts.filter(

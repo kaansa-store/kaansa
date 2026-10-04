@@ -14,21 +14,27 @@ export async function shopifyFetch<T>({
   tags?: string[];
   cache?: RequestCache;
 }): Promise<{ data: T; errors?: { message: string }[] }> {
-  const domain = process.env.SHOPIFY_STORE_DOMAIN;
-  const token = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+  const rawDomain = process.env.SHOPIFY_STORE_DOMAIN?.trim().replace(/^['"]|['"]$/g, '');
+  const rawToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN?.trim().replace(/^['"]|['"]$/g, '');
 
-  if (!domain || !token) {
+  if (!rawDomain || !rawToken) {
     throw new Error('Missing Shopify environment variables: SHOPIFY_STORE_DOMAIN or SHOPIFY_STOREFRONT_ACCESS_TOKEN');
   }
 
-  const endpoint = `https://${domain}/api/${API_VERSION}/graphql.json`;
+  const cleanDomain = rawDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+  const endpoint = `https://${cleanDomain}/api/${API_VERSION}/graphql.json`;
+
+  const isPrivateToken = rawToken.startsWith('shpat_');
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(isPrivateToken
+      ? { 'Shopify-Storefront-Private-Token': rawToken }
+      : { 'X-Shopify-Storefront-Access-Token': rawToken }),
+  };
 
   const res = await fetch(endpoint, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Shopify-Storefront-Private-Token': token,
-    },
+    headers,
     body: JSON.stringify({ query, variables }),
     cache,
     next: tags ? { tags } : undefined,
