@@ -4,6 +4,11 @@ import type { Metadata } from 'next';
 import { getProducts } from '@/lib/shopify';
 import ProductGrid from '@/components/product/ProductGrid';
 import Button from '@/components/ui/Button';
+import CraftMarquee from '@/components/home/CraftMarquee';
+import ShopByMetal from '@/components/home/ShopByMetal';
+import CorePrinciples from '@/components/home/CorePrinciples';
+import Testimonials from '@/components/home/Testimonials';
+import Faq from '@/components/home/Faq';
 
 export const metadata: Metadata = {
   title: 'Kaansa | Handcrafted Brass & Copper Heritage Pieces',
@@ -113,6 +118,8 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <CraftMarquee />
+
       {/* 2. Trust Ribbon */}
       <section className="border-y border-[var(--color-border)] bg-[var(--color-surface)] py-6">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
@@ -205,6 +212,8 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <ShopByMetal />
+
       {/* 4. Featured Product Catalog from Shopify */}
       {featuredProducts.length > 0 && (
         <section className="bg-[var(--color-surface)] py-20 lg:py-28 border-y border-[var(--color-border)]">
@@ -286,6 +295,8 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <CorePrinciples />
 
       {/* 6. Auspicious Gifting Feature */}
       <section className="relative overflow-hidden bg-[#24140B] text-white py-20 lg:py-28">
@@ -378,6 +389,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <Testimonials />
+      <Faq />
     </div>
   );
 }
