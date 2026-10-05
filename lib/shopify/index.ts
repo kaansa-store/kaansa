@@ -9,6 +9,7 @@ import {
 import {
   getCollectionQuery,
   getCollectionsQuery,
+  GET_COLLECTION_META_QUERY,
 } from './queries/collection';
 import {
   createCartMutation,
@@ -202,6 +203,40 @@ export async function getCollections(first = 50): Promise<Collection[]> {
   } catch (error) {
     console.error('Failed to fetch collections:', error);
     return [];
+  }
+}
+
+export async function getCollectionMeta(handle: string): Promise<{
+  title: string;
+  description: string;
+  image?: {
+    url: string;
+    altText?: string | null;
+    width?: number;
+    height?: number;
+  } | null;
+} | null> {
+  try {
+    const res = await shopifyFetch<{
+      collection: {
+        title: string;
+        description: string;
+        image?: {
+          url: string;
+          altText?: string | null;
+          width?: number;
+          height?: number;
+        } | null;
+      } | null;
+    }>({
+      query: GET_COLLECTION_META_QUERY,
+      variables: { handle },
+      cache: 'no-store', // always fresh — title, image, description
+    });
+    return res.data.collection ?? null;
+  } catch (error) {
+    console.error(`Failed to fetch collection meta for "${handle}":`, error);
+    return null;
   }
 }
 

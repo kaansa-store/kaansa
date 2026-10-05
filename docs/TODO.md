@@ -14,3 +14,21 @@ This document outlines how real-time changes in Shopify Admin synchronize with t
 | **Add a new product** | `products/create` webhook → appears in grids on next visit |
 | **Create a new collection** | `collections/create` webhook → appears in `/collections` on next visit |
 | **No webhook (webhook fails)** | `revalidate = 3600` safety net kicks in, change appears within 1 hour maximum |
+
+## Collection Dynamic Sync Behavior
+
+| Change in Shopify Admin | What happens on the website |
+|---|---|
+| **Edit collection title** | `collections/update` webhook → `LiveCollectionMeta` refetches → updated on next page load (no cache) |
+| **Edit collection description** | Same as above |
+| **Change collection banner image** | Same as above |
+| **Add product to collection** | `products/update` + `collections/update` webhooks → collection page rebuilds → product appears in grid in ~2 seconds |
+| **Remove product from collection** | Same as above, product disappears |
+| **Add home-page tag to a product** | `products/update` webhook → homepage featured grid rebuilds in ~2 seconds |
+| **Remove home-page tag** | Same as above, product disappears from homepage grid |
+| **Create a new collection** | `collections/create` webhook → appears on `/collections` in ~2 seconds |
+| **Delete a collection** | `collections/delete` webhook → disappears from `/collections`, its URL returns 404 |
+| **Publish a collection** | `collections/update` webhook → appears on `/collections` in ~2 seconds |
+| **Unpublish a collection** | Same as above, disappears |
+| **No webhook (webhook fails)** | `revalidate = 3600` safety net, change appears within 1 hour maximum |
+

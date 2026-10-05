@@ -56,3 +56,19 @@ export const getCollectionsQuery = /* GraphQL */ `
     }
   }
 `;
+
+export const GET_COLLECTION_META_QUERY = /* GraphQL */ `
+  query GetCollectionMeta($handle: String!) {
+    collection(handle: $handle) {
+      title
+      description
+      image {
+        url
+        altText
+        width
+        height
+      }
+    }
+  }
+`;
+

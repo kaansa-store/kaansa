@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Image from 'next/image';
@@ -5,6 +6,8 @@ import { getCollection, getCollections } from '@/lib/shopify';
 import ProductGrid from '@/components/product/ProductGrid';
 import CollectionFilters from '@/components/product/CollectionFilters';
 import Divider from '@/components/ui/Divider';
+import LiveCollectionMeta from '@/components/collection/LiveCollectionMeta';
+import Skeleton from '@/components/ui/Skeleton';
 
 interface PageProps {
   params: Promise<{ handle: string }>;
@@ -127,6 +130,14 @@ export default async function CollectionDetailPage(props: PageProps) {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 pb-20">
+        <Suspense
+          fallback={
+            <Skeleton style={{ aspectRatio: '3/1', width: '100%' }} />
+          }
+        >
+          <LiveCollectionMeta handle={handle} />
+        </Suspense>
+
         <CollectionFilters
           currentType={type}
           currentSort={sort}
