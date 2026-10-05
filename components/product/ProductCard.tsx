@@ -4,6 +4,7 @@ import Link from 'next/link';
 import clsx from 'clsx';
 import { Product } from '@/lib/shopify/types';
 import PriceDisplay from './PriceDisplay';
+import RatingBadge from './RatingBadge';
 
 export interface ProductCardProps {
   product: Product;
@@ -40,6 +41,11 @@ export function ProductCard({ product, priority = false, className }: ProductCar
             No image
           </div>
         )}
+
+        {/* Rating Pill Badge */}
+        <div className="absolute bottom-2.5 left-2.5 z-10 pointer-events-none transition-transform duration-300 group-hover:translate-y-[-2px]">
+          <RatingBadge handle={product.handle} />
+        </div>
       </Link>
 
       <div className="mt-3.5 flex flex-col">

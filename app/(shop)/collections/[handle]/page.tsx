@@ -24,8 +24,10 @@ const TYPE_BANNER_MAP: Record<string, string> = {
   'Kitchen & Tableware': '/images/collections-kitchen.jpg',
 };
 
+export const revalidate = 3600;
+
 export async function generateStaticParams() {
-  const collections = await getCollections();
+  const collections = await getCollections(50);
   const handles = collections.map((c) => ({ handle: c.handle }));
   return [{ handle: 'all' }, ...handles];
 }

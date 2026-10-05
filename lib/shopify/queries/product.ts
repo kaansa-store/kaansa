@@ -99,3 +99,19 @@ export const getProductRecommendationsQuery = /* GraphQL */ `
   }
   ${productFragment}
 `;
+
+export const GET_PRODUCT_INVENTORY_QUERY = /* GraphQL */ `
+  query GetProductInventory($handle: String!) {
+    product(handle: $handle) {
+      variants(first: 10) {
+        edges {
+          node {
+            id
+            availableForSale
+            quantityAvailable
+          }
+        }
+      }
+    }
+  }
+`;

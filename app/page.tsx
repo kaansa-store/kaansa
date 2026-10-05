@@ -101,9 +101,9 @@ export default async function HomePage() {
             </Link>
             <Link href="#craft" className="w-full sm:w-auto">
               <Button
-                variant="ghost"
+                variant="outline-light"
                 size="lg"
-                className="w-full sm:w-auto text-[#FBF5EA] border-white/30 hover:border-[var(--color-gold)] hover:text-[var(--color-gold)]"
+                className="w-full sm:w-auto"
               >
                 Watch The Craft
               </Button>

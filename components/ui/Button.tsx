@@ -4,7 +4,7 @@ import React from 'react';
 import clsx from 'clsx';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'ghost' | 'secondary';
+  variant?: 'primary' | 'ghost' | 'secondary' | 'outline-light';
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
 }
@@ -35,6 +35,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         'bg-transparent text-[var(--color-text)] border border-[var(--color-border)] hover:border-[var(--color-text)] active:scale-[0.98]',
       secondary:
         'bg-[var(--color-surface)] text-[var(--color-text)] hover:bg-[var(--color-surface-2)] active:scale-[0.98] border border-[var(--color-border)]',
+      'outline-light':
+        'bg-white/5 text-[#FAF6F0] border border-white/50 hover:border-[var(--color-gold)] hover:text-[var(--color-gold)] hover:bg-white/10 active:scale-[0.98] backdrop-blur-xs',
     };
 
     return (

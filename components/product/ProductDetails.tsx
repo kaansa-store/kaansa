@@ -7,15 +7,18 @@ import Button from '@/components/ui/Button';
 import Divider from '@/components/ui/Divider';
 import { useCart } from '@/components/cart/CartContext';
 import { buyNowAction } from '@/app/(shop)/cart/actions';
+import { getProductRatingData } from '@/lib/reviews/data';
 
 export interface ProductDetailsProps {
   product: Product;
+  children?: React.ReactNode;
 }
 
-export function ProductDetails({ product }: ProductDetailsProps) {
+export function ProductDetails({ product, children }: ProductDetailsProps) {
   const [quantity, setQuantity] = useState(1);
   const [isBuyingNow, setIsBuyingNow] = useState(false);
   const { addItem, isPending } = useCart();
+  const { summary: ratingSummary } = getProductRatingData(product.handle);
 
   const firstVariant = product.variants?.[0];
   const isAvailable = product.availableForSale && (firstVariant?.availableForSale ?? true);
@@ -54,6 +57,22 @@ export function ProductDetails({ product }: ProductDetailsProps) {
         {product.title}
       </h1>
 
+      {/* Star Rating snippet */}
+      <a
+        href="#reviews"
+        className="mt-2.5 inline-flex items-center gap-2 text-xs font-[family-name:var(--font-body)] group cursor-pointer self-start focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-gold)]"
+      >
+        <span className="text-[var(--color-gold)] text-sm tracking-wider" aria-hidden="true">
+          ★★★★★
+        </span>
+        <span className="font-semibold text-[var(--color-text)]">
+          {ratingSummary.averageRating.toFixed(1)}
+        </span>
+        <span className="text-[var(--color-muted)] group-hover:text-[var(--color-accent)] transition-colors underline underline-offset-2">
+          ({ratingSummary.totalReviews} reviews)
+        </span>
+      </a>
+
       {/* Price */}
       <div className="mt-4 mb-6">
         <PriceDisplay
@@ -68,6 +87,8 @@ export function ProductDetails({ product }: ProductDetailsProps) {
       </div>
 
       <Divider className="my-2" />
+
+      {children && <div className="mt-3">{children}</div>}
 
       {/* Quantity & CTA Buttons */}
       <div className="mt-6 flex flex-col gap-4">

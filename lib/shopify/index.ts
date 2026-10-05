@@ -4,6 +4,7 @@ import {
   getProductQuery,
   getProductsQuery,
   getProductRecommendationsQuery,
+  GET_PRODUCT_INVENTORY_QUERY,
 } from './queries/product';
 import {
   getCollectionQuery,
@@ -59,6 +60,7 @@ export async function getMenu(handle: string): Promise<MenuItem[]> {
       query: getMenuQuery,
       variables: { handle },
       tags: ['menus'],
+      cache: 'force-cache',
     });
 
     if (!res.data.menu?.items) {
@@ -85,6 +87,7 @@ export async function getProduct(handle: string): Promise<Product | null> {
       query: getProductQuery,
       variables: { handle },
       tags: ['products', `product-${handle}`],
+      cache: 'force-cache',
     });
 
     return reshapeProduct(res.data.product);
@@ -94,22 +97,66 @@ export async function getProduct(handle: string): Promise<Product | null> {
   }
 }
 
-export async function getProducts(options?: {
+export async function getProductInventory(
+  handle: string,
+  variantId: string
+): Promise<{ availableForSale: boolean; quantityAvailable: number | null }> {
+  try {
+    const res = await shopifyFetch<{
+      product: {
+        variants: {
+          edges: {
+            node: {
+              id: string;
+              availableForSale: boolean;
+              quantityAvailable: number | null;
+            };
+          }[];
+        };
+      } | null;
+    }>({
+      query: GET_PRODUCT_INVENTORY_QUERY,
+      variables: { handle },
+      cache: 'no-store', // always fresh, never cached
+    });
+
+    const variant = res.data.product?.variants.edges
+      .map((e) => e.node)
+      .find((v) => v.id === variantId);
+
+    return {
+      availableForSale: variant?.availableForSale ?? false,
+      quantityAvailable: variant?.quantityAvailable ?? null,
+    };
+  } catch (error) {
+    console.error(`Failed to fetch inventory for "${handle}":`, error);
+    return {
+      availableForSale: true,
+      quantityAvailable: null,
+    };
+  }
+}
+
+export async function getProducts(options?: number | {
   first?: number;
   query?: string;
   sortKey?: string;
   reverse?: boolean;
 }): Promise<Product[]> {
+  const opts = typeof options === 'number' ? { first: options } : options;
+  const isSearch = Boolean(opts?.query);
+
   try {
     const res = await shopifyFetch<{ products: { edges: { node: ShopifyProduct }[] } }>({
       query: getProductsQuery,
       variables: {
-        first: options?.first || 100,
-        query: options?.query,
-        sortKey: options?.sortKey,
-        reverse: options?.reverse,
+        first: opts?.first || 100,
+        query: opts?.query,
+        sortKey: opts?.sortKey,
+        reverse: opts?.reverse,
       },
-      tags: ['products'],
+      tags: isSearch ? undefined : ['products'],
+      cache: isSearch ? 'no-store' : 'force-cache',
     });
 
     return reshapeProducts(res.data.products);
@@ -125,6 +172,7 @@ export async function getProductRecommendations(productId: string): Promise<Prod
       query: getProductRecommendationsQuery,
       variables: { productId },
       tags: ['products'],
+      cache: 'force-cache',
     });
 
     if (!res.data.productRecommendations) return [];
@@ -137,12 +185,13 @@ export async function getProductRecommendations(productId: string): Promise<Prod
   }
 }
 
-export async function getCollections(): Promise<Collection[]> {
+export async function getCollections(first = 50): Promise<Collection[]> {
   try {
     const res = await shopifyFetch<{ collections: { edges: { node: ShopifyCollection }[] } }>({
       query: getCollectionsQuery,
-      variables: { first: 50 },
+      variables: { first },
       tags: ['collections'],
+      cache: 'force-cache',
     });
 
     if (!res.data.collections?.edges) return [];
@@ -252,7 +301,8 @@ export async function getCollection(
         reverse: sortConfig?.reverse,
         filters: filters.length > 0 ? filters : undefined,
       },
-      tags: ['collections', `collection-${handle}`],
+      tags: ['collections', 'products', `collection-${handle}`],
+      cache: 'force-cache',
     });
 
     return reshapeCollection(res.data.collection);

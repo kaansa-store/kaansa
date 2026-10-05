@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getProduct, getProducts, getProductRecommendations } from '@/lib/shopify';
@@ -5,13 +6,18 @@ import ProductGallery from '@/components/product/ProductGallery';
 import ProductDetails from '@/components/product/ProductDetails';
 import RelatedProducts from '@/components/product/RelatedProducts';
 import StickyAddToCart from '@/components/product/StickyAddToCart';
+import ProductReviews from '@/components/product/ProductReviews';
+import LiveInventory from '@/components/product/LiveInventory';
+import { getProductRatingData } from '@/lib/reviews/data';
 
 interface PageProps {
   params: Promise<{ handle: string }>;
 }
 
+export const revalidate = 3600;
+
 export async function generateStaticParams() {
-  const products = await getProducts({ first: 250 });
+  const products = await getProducts(250);
   return products.map((p) => ({
     handle: p.handle,
   }));
@@ -54,6 +60,7 @@ export default async function ProductPage(props: PageProps) {
 
   // Fetch recommendations in parallel
   const recommendations = await getProductRecommendations(product.id);
+  const ratingData = getProductRatingData(product.handle);
 
   // Structured Data (JSON-LD)
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
@@ -64,6 +71,13 @@ export default async function ProductPage(props: PageProps) {
     description: product.description,
     image: product.images.map((img) => img.url),
     brand: { '@type': 'Brand', name: 'Kaansa' },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: ratingData.summary.averageRating,
+      reviewCount: ratingData.summary.totalReviews,
+      bestRating: 5,
+      worstRating: 1,
+    },
     offers: {
       '@type': 'Offer',
       priceCurrency: product.variants?.[0]?.price.currencyCode || 'INR',
@@ -99,8 +113,17 @@ export default async function ProductPage(props: PageProps) {
       <div className="max-w-7xl mx-auto px-6 py-12 lg:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
           <ProductGallery images={product.images} title={product.title} />
-          <ProductDetails product={product} />
+          <ProductDetails product={product}>
+            <Suspense fallback={null}>
+              <LiveInventory
+                handle={handle}
+                variantId={product.variants[0]?.id || ''}
+              />
+            </Suspense>
+          </ProductDetails>
         </div>
+
+        <ProductReviews productHandle={product.handle} productTitle={product.title} />
 
         <RelatedProducts products={recommendations} />
       </div>
