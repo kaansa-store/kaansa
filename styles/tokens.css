@@ -10,11 +10,14 @@
   --color-muted:     #7A5A44;   /* Aged teak — secondary text, captions */
   --color-subtle:    #B09070;   /* Faded brass — placeholders, disabled */
 
-  /* Accents */
-  --color-accent:    #8A4A1C;   /* Copper — primary CTA, links */
-  --color-accent-hover: #6E3A14; /* Darker copper — hover */
-  --color-gold:      #C9A24B;   /* Brass — decorative, price highlights */
-  --color-gold-light: #E8D08A;  /* Light brass — hover underlines */
+  /* Royal Heritage Palette (Wine + Gold + Ivory) */
+  --color-accent:    #2D0B18;   /* Royal Wine / Burgundy — primary brand accent, headers, CTAs */
+  --color-accent-hover: #481123; /* Rich Burgundy hover */
+  --color-wine:      #2D0B18;   /* Deep Royal Wine */
+  --color-wine-dark: #1E0710;   /* Deeper Wine shade */
+  --color-wine-light: #481123;  /* Lighter Wine tone */
+  --color-gold:      #C9A24B;   /* Antique Gold — decorative, badges, highlights */
+  --color-gold-light: #E8D08A;  /* Soft Warm Gold — hover underlines, accents */
 
   /* Borders */
   --color-border:    #D9C9B0;   /* Linen — all borders */
@@ -23,7 +26,7 @@
   /* Semantic */
   --color-success:   #3F6B3A;
   --color-danger:    #9B2C2C;
-  --color-warning:   #8A6A1C;
+  --color-warning:   #C9A24B;
 
   /* Typography variables */
   --font-display: var(--font-cormorant);

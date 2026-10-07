@@ -145,3 +145,68 @@ export interface ShopPolicies {
   shippingPolicy?: ShopifyPolicy | null;
   termsOfService?: ShopifyPolicy | null;
 }
+
+// ─── Customer Auth ───────────────────────────────────────────────
+
+export interface CustomerAccessToken {
+  accessToken: string;
+  expiresAt: string;
+}
+
+export interface CustomerUserError {
+  field: string[] | null;
+  message: string;
+  code: string;
+}
+
+export interface CustomerAddress {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  address1: string | null;
+  address2: string | null;
+  city: string | null;
+  province: string | null;
+  country: string | null;
+  zip: string | null;
+  phone: string | null;
+  isDefault?: boolean;
+}
+
+export interface CustomerOrder {
+  id: string;
+  orderNumber: number;
+  name: string;           // e.g. "#1001"
+  processedAt: string;    // ISO date
+  financialStatus: string;
+  fulfillmentStatus: string;
+  currentTotalPrice: ShopifyMoney;
+  statusUrl: string;      // Shopify-hosted order status page
+  lineItems: {
+    edges: {
+      node: {
+        title: string;
+        quantity: number;
+        variant: {
+          price: ShopifyMoney;
+          image: ShopifyImage | null;
+        } | null;
+      };
+    }[];
+  };
+}
+
+export interface Customer {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  phone: string | null;
+  defaultAddress: CustomerAddress | null;
+  addresses: {
+    edges: { node: CustomerAddress }[];
+  };
+  orders: {
+    edges: { node: CustomerOrder }[];
+  };
+}

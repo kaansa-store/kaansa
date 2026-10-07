@@ -58,3 +58,32 @@ SHOPIFY_REVALIDATION_SECRET=<paste here>
 ```
 
 After registering, make a test change in Shopify Admin (edit any product title and save). The website should reflect the change within 2-3 seconds without any code deployment.
+
+## Email Setup (Resend)
+
+1. Go to https://resend.com and create a free account.
+
+2. In the Resend dashboard → API Keys → Create API key.
+   Name it "Kaansa contact form". Give it "Sending access" only.
+   Copy the key (starts with re_).
+
+3. Add to .env.local:
+   ```bash
+   RESEND_API_KEY=re_your_key_here
+   CONTACT_TO_EMAIL=kaansaindia@gmail.com
+   CONTACT_FROM_EMAIL=contact@yourdomain.com
+   ```
+
+4. CONTACT_FROM_EMAIL must be a verified sender in Resend.
+   Two options:
+   a) Verify your domain (yourdomain.com) in Resend → Domains.
+      This is the recommended option for production.
+      Resend will give you DNS records to add to your domain registrar.
+   b) If you do not have a custom domain yet, use Resend's shared
+      sender: onboarding@resend.dev (works on free tier for testing).
+      Set CONTACT_FROM_EMAIL=onboarding@resend.dev for now.
+
+5. Add all three env vars to Vercel:
+   Vercel dashboard → Settings → Environment Variables
+   Add RESEND_API_KEY, CONTACT_TO_EMAIL, CONTACT_FROM_EMAIL
+   for Production, Preview and Development.

@@ -1,47 +1,68 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 import { MenuItem } from '@/lib/shopify/types';
 import { useCart } from '@/components/cart/CartContext';
+import { getCustomerSessionAction, logoutAction } from '@/app/account/actions';
 
 export interface HeaderProps {
   menuItems?: MenuItem[];
 }
 
 export function Header({ menuItems = [] }: HeaderProps) {
-  const [isVisible, setIsVisible] = useState(true);
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [customer, setCustomer] = useState<{ firstName: string | null; email: string } | null>(null);
+  const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const { cart, openCart } = useCart();
 
   const cartCount = cart?.totalQuantity || 0;
 
   useEffect(() => {
-    let lastScrollY = window.scrollY;
-
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setIsScrolled(currentScrollY > 80);
-
-      if (currentScrollY < 10) {
-        setIsVisible(true);
-      } else if (currentScrollY > lastScrollY && currentScrollY > 120) {
-        setIsVisible(false);
-      } else if (currentScrollY < lastScrollY) {
-        setIsVisible(true);
-      }
-
-      lastScrollY = currentScrollY;
+      setIsScrolled(window.scrollY > 20);
     };
 
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks =
+  // Check customer session on mount and route transitions
+  useEffect(() => {
+    let isMounted = true;
+    getCustomerSessionAction()
+      .then((res) => {
+        if (isMounted) setCustomer(res);
+      })
+      .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
+  }, [pathname]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setAccountDropdownOpen(false);
+      }
+    };
+
+    if (accountDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [accountDropdownOpen]);
+
+  const baseLinks =
     menuItems.length > 0
       ? menuItems
       : [
@@ -51,12 +72,24 @@ export function Header({ menuItems = [] }: HeaderProps) {
           { title: 'Contact', url: '/contact' },
         ];
 
+  const hasGifting = baseLinks.some((item) => item.url.includes('gifting'));
+  const navLinks = hasGifting
+    ? baseLinks
+    : [
+        ...baseLinks.slice(0, 2),
+        { title: 'Personal Gifting', url: '/personal-gifting' },
+        ...baseLinks.slice(2),
+      ];
+
+  const initial = customer?.firstName ? customer.firstName.charAt(0).toUpperCase() : 'A';
+
   return (
     <header
       className={clsx(
-        'sticky top-0 z-50 transition-transform duration-300 backdrop-blur-md bg-[rgba(251,245,234,0.92)]',
-        isVisible ? 'translate-y-0' : '-translate-y-full',
-        isScrolled && 'border-b border-[var(--color-border)] shadow-xs'
+        'sticky top-0 z-50 w-full backdrop-blur-md bg-[rgba(251,245,234,0.95)] transition-all duration-300',
+        isScrolled
+          ? 'border-b border-[var(--color-border)] shadow-xs'
+          : 'border-b border-transparent'
       )}
     >
       <div className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between">
@@ -121,7 +154,83 @@ export function Header({ menuItems = [] }: HeaderProps) {
         </nav>
 
         {/* Icons */}
-        <div className="flex items-center space-x-4 md:space-x-6">
+        <div className="flex items-center space-x-2 sm:space-x-4 md:space-x-5">
+          {/* Account Icon / Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            {customer ? (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--color-accent)] text-[#FAF6F0] text-xs font-semibold font-[family-name:var(--font-body)] hover:bg-[var(--color-accent-hover)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)] cursor-pointer"
+                  aria-label="Account menu"
+                  aria-expanded={accountDropdownOpen}
+                >
+                  {initial}
+                </button>
+
+                {accountDropdownOpen && (
+                  <div className="absolute right-0 mt-3 w-56 bg-[var(--color-surface)] border border-[var(--color-border)] shadow-md z-50 p-2 divide-y divide-[var(--color-border)]">
+                    <div className="px-3 py-2.5">
+                      <p className="text-xs font-[family-name:var(--font-body)] text-[var(--color-muted)] uppercase tracking-wider">
+                        Signed in as
+                      </p>
+                      <p className="text-sm font-[family-name:var(--font-display)] text-[var(--color-text)] font-semibold truncate mt-0.5">
+                        {customer.firstName || customer.email}
+                      </p>
+                    </div>
+
+                    <div className="py-1">
+                      <Link
+                        href="/account"
+                        onClick={() => setAccountDropdownOpen(false)}
+                        className="block px-3 py-2 text-xs font-[family-name:var(--font-body)] uppercase tracking-wider text-[var(--color-text)] hover:bg-[var(--color-surface-2)] transition-colors"
+                      >
+                        Dashboard
+                      </Link>
+                      <Link
+                        href="/account/orders"
+                        onClick={() => setAccountDropdownOpen(false)}
+                        className="block px-3 py-2 text-xs font-[family-name:var(--font-body)] uppercase tracking-wider text-[var(--color-text)] hover:bg-[var(--color-surface-2)] transition-colors"
+                      >
+                        Order History
+                      </Link>
+                      <Link
+                        href="/account/addresses"
+                        onClick={() => setAccountDropdownOpen(false)}
+                        className="block px-3 py-2 text-xs font-[family-name:var(--font-body)] uppercase tracking-wider text-[var(--color-text)] hover:bg-[var(--color-surface-2)] transition-colors"
+                      >
+                        Saved Addresses
+                      </Link>
+                    </div>
+
+                    <div className="pt-1">
+                      <form action={logoutAction}>
+                        <button
+                          type="submit"
+                          className="w-full text-left px-3 py-2 text-xs font-[family-name:var(--font-body)] uppercase tracking-wider text-[var(--color-muted)] hover:text-[var(--color-danger)] hover:bg-[var(--color-surface-2)] transition-colors cursor-pointer"
+                        >
+                          Sign out
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/account/login"
+                className="p-2 text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)]"
+                aria-label="Sign in to your account"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </Link>
+            )}
+          </div>
+
           <Link
             href="/search"
             className="p-2 text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)]"
@@ -167,6 +276,36 @@ export function Header({ menuItems = [] }: HeaderProps) {
                 {item.title}
               </Link>
             ))}
+
+            <div className="pt-4 border-t border-[var(--color-border)] flex flex-col space-y-3">
+              {customer ? (
+                <>
+                  <Link
+                    href="/account"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-sm font-[family-name:var(--font-body)] uppercase tracking-[0.1em] text-[var(--color-accent)] font-medium py-1"
+                  >
+                    My Account ({customer.firstName || 'Profile'})
+                  </Link>
+                  <form action={logoutAction}>
+                    <button
+                      type="submit"
+                      className="text-xs font-[family-name:var(--font-body)] uppercase tracking-[0.1em] text-[var(--color-muted)] hover:text-[var(--color-danger)] transition-colors py-1 cursor-pointer"
+                    >
+                      Sign out
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <Link
+                  href="/account/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-sm font-[family-name:var(--font-body)] uppercase tracking-[0.1em] text-[var(--color-accent)] font-medium py-1"
+                >
+                  Sign in / Register
+                </Link>
+              )}
+            </div>
           </nav>
         </div>
       )}

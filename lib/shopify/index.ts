@@ -17,7 +17,18 @@ import {
   updateCartMutation,
   removeFromCartMutation,
   getCartQuery,
+  updateCartBuyerIdentityMutation,
 } from './queries/cart';
+import {
+  CUSTOMER_ACCESS_TOKEN_CREATE,
+  CUSTOMER_ACCESS_TOKEN_DELETE,
+  CUSTOMER_CREATE,
+  CUSTOMER_RECOVER,
+  CUSTOMER_ADDRESS_CREATE,
+  CUSTOMER_ADDRESS_DELETE,
+  CUSTOMER_DEFAULT_ADDRESS_UPDATE,
+  GET_CUSTOMER,
+} from './queries/customer';
 import {
   MenuItem,
   ShopifyMenu,
@@ -27,6 +38,10 @@ import {
   Collection,
   ShopifyCart,
   Cart,
+  CustomerAccessToken,
+  CustomerUserError,
+  CustomerAddress,
+  Customer,
 } from './types';
 import {
   reshapeProduct,
@@ -55,13 +70,18 @@ export function normalizeMenuUrl(url: string): string {
   return url;
 }
 
+// In local development, bypass cache so Shopify Admin changes sync immediately.
+// In production, use force-cache with Shopify webhook revalidation.
+const defaultCache: RequestCache =
+  process.env.NODE_ENV === 'development' ? 'no-store' : 'force-cache';
+
 export async function getMenu(handle: string): Promise<MenuItem[]> {
   try {
     const res = await shopifyFetch<{ menu: ShopifyMenu | null }>({
       query: getMenuQuery,
       variables: { handle },
       tags: ['menus'],
-      cache: 'force-cache',
+      cache: defaultCache,
     });
 
     if (!res.data.menu?.items) {
@@ -88,7 +108,7 @@ export async function getProduct(handle: string): Promise<Product | null> {
       query: getProductQuery,
       variables: { handle },
       tags: ['products', `product-${handle}`],
-      cache: 'force-cache',
+      cache: defaultCache,
     });
 
     return reshapeProduct(res.data.product);
@@ -110,7 +130,6 @@ export async function getProductInventory(
             node: {
               id: string;
               availableForSale: boolean;
-              quantityAvailable: number | null;
             };
           }[];
         };
@@ -118,7 +137,8 @@ export async function getProductInventory(
     }>({
       query: GET_PRODUCT_INVENTORY_QUERY,
       variables: { handle },
-      cache: 'no-store', // always fresh, never cached
+      tags: ['inventory', `inventory-${handle}`],
+      cache: defaultCache,
     });
 
     const variant = res.data.product?.variants.edges
@@ -127,7 +147,7 @@ export async function getProductInventory(
 
     return {
       availableForSale: variant?.availableForSale ?? false,
-      quantityAvailable: variant?.quantityAvailable ?? null,
+      quantityAvailable: null,
     };
   } catch (error) {
     console.error(`Failed to fetch inventory for "${handle}":`, error);
@@ -157,7 +177,7 @@ export async function getProducts(options?: number | {
         reverse: opts?.reverse,
       },
       tags: isSearch ? undefined : ['products'],
-      cache: isSearch ? 'no-store' : 'force-cache',
+      cache: isSearch ? 'no-store' : defaultCache,
     });
 
     return reshapeProducts(res.data.products);
@@ -173,7 +193,7 @@ export async function getProductRecommendations(productId: string): Promise<Prod
       query: getProductRecommendationsQuery,
       variables: { productId },
       tags: ['products'],
-      cache: 'force-cache',
+      cache: defaultCache,
     });
 
     if (!res.data.productRecommendations) return [];
@@ -192,7 +212,7 @@ export async function getCollections(first = 50): Promise<Collection[]> {
       query: getCollectionsQuery,
       variables: { first },
       tags: ['collections'],
-      cache: 'force-cache',
+      cache: defaultCache,
     });
 
     if (!res.data.collections?.edges) return [];
@@ -337,7 +357,7 @@ export async function getCollection(
         filters: filters.length > 0 ? filters : undefined,
       },
       tags: ['collections', 'products', `collection-${handle}`],
-      cache: 'force-cache',
+      cache: defaultCache,
     });
 
     return reshapeCollection(res.data.collection);
@@ -461,3 +481,154 @@ export async function removeFromCart(cartId: string, lineIds: string[]): Promise
     return null;
   }
 }
+
+// ─── Customer Authentication & Account ───────────────────────────
+
+export async function customerLogin(email: string, password: string) {
+  const res = await shopifyFetch<{
+    customerAccessTokenCreate: {
+      customerAccessToken: CustomerAccessToken | null;
+      customerUserErrors: CustomerUserError[];
+    };
+  }>({
+    query: CUSTOMER_ACCESS_TOKEN_CREATE,
+    variables: { input: { email, password } },
+    cache: 'no-store',
+  });
+  return res.data.customerAccessTokenCreate;
+}
+
+export async function customerLogout(accessToken: string) {
+  await shopifyFetch({
+    query: CUSTOMER_ACCESS_TOKEN_DELETE,
+    variables: { customerAccessToken: accessToken },
+    cache: 'no-store',
+  });
+}
+
+export async function customerRegister(input: {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  acceptsMarketing?: boolean;
+}) {
+  const res = await shopifyFetch<{
+    customerCreate: {
+      customer: { id: string; email: string } | null;
+      customerUserErrors: CustomerUserError[];
+    };
+  }>({
+    query: CUSTOMER_CREATE,
+    variables: { input },
+    cache: 'no-store',
+  });
+  return res.data.customerCreate;
+}
+
+export async function customerRecover(email: string) {
+  const res = await shopifyFetch<{
+    customerRecover: { customerUserErrors: CustomerUserError[] };
+  }>({
+    query: CUSTOMER_RECOVER,
+    variables: { email },
+    cache: 'no-store',
+  });
+  return res.data.customerRecover;
+}
+
+export async function getCustomer(accessToken: string): Promise<Customer | null> {
+  try {
+    const res = await shopifyFetch<{ customer: Customer | null }>({
+      query: GET_CUSTOMER,
+      variables: { customerAccessToken: accessToken },
+      cache: 'no-store', // always fresh — orders, addresses change
+    });
+    return res.data?.customer ?? null;
+  } catch (error) {
+    console.error('[Shopify GetCustomer Error]', error);
+    return null;
+  }
+}
+
+export async function customerAddressCreate(
+  accessToken: string,
+  address: Omit<CustomerAddress, 'id' | 'isDefault'>
+) {
+  const res = await shopifyFetch<{
+    customerAddressCreate: {
+      customerAddress: { id: string } | null;
+      customerUserErrors: CustomerUserError[];
+    };
+  }>({
+    query: CUSTOMER_ADDRESS_CREATE,
+    variables: { customerAccessToken: accessToken, address },
+    cache: 'no-store',
+  });
+  return res.data.customerAddressCreate;
+}
+
+export async function customerAddressDelete(
+  accessToken: string,
+  id: string
+) {
+  const res = await shopifyFetch<{
+    customerAddressDelete: {
+      deletedCustomerAddressId: string | null;
+      customerUserErrors: CustomerUserError[];
+    };
+  }>({
+    query: CUSTOMER_ADDRESS_DELETE,
+    variables: { customerAccessToken: accessToken, id },
+    cache: 'no-store',
+  });
+  return res.data.customerAddressDelete;
+}
+
+export async function customerDefaultAddressUpdate(
+  accessToken: string,
+  addressId: string
+) {
+  const res = await shopifyFetch<{
+    customerDefaultAddressUpdate: {
+      customer: { id: string } | null;
+      customerUserErrors: CustomerUserError[];
+    };
+  }>({
+    query: CUSTOMER_DEFAULT_ADDRESS_UPDATE,
+    variables: { customerAccessToken: accessToken, addressId },
+    cache: 'no-store',
+  });
+  return res.data.customerDefaultAddressUpdate;
+}
+
+export async function updateCartBuyerIdentity(
+  cartId: string,
+  customerAccessToken: string
+): Promise<Cart | null> {
+  try {
+    const res = await shopifyFetch<{
+      cartBuyerIdentityUpdate: {
+        cart: ShopifyCart | null;
+        userErrors: { field: string; message: string }[];
+      };
+    }>({
+      query: updateCartBuyerIdentityMutation,
+      variables: {
+        cartId,
+        buyerIdentity: { customerAccessToken },
+      },
+      cache: 'no-store',
+    });
+
+    if (res.data.cartBuyerIdentityUpdate.userErrors?.length) {
+      console.warn('[Shopify CartBuyerIdentityUpdate UserErrors]', res.data.cartBuyerIdentityUpdate.userErrors);
+    }
+
+    return reshapeCart(res.data.cartBuyerIdentityUpdate.cart);
+  } catch (error) {
+    console.error('Failed to update cart buyer identity:', error);
+    return null;
+  }
+}
+

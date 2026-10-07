@@ -28,14 +28,19 @@ const metals = [
 /** "Shop by Metal" split panels with oversized type (inspired by PTAL). */
 export default function ShopByMetal() {
   return (
-    <section className="bg-[#1B0F08] text-[#FBF5EA] py-20 lg:py-28">
-      <div className="max-w-7xl mx-auto px-6">
+    <section className="bg-[#1E0710] text-[#FBF5EA] py-20 lg:py-28 relative overflow-hidden">
+      <div
+        className="absolute inset-0 opacity-[0.04] pointer-events-none bg-repeat bg-[length:360px_360px]"
+        style={{ backgroundImage: 'url(/images/pattern.jpg)' }}
+        aria-hidden="true"
+      />
+      <div className="relative z-10 max-w-7xl mx-auto px-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
           <div>
             <span className="text-xs uppercase tracking-[0.2em] text-[var(--color-gold)] font-medium block mb-3 font-[family-name:var(--font-body)]">
               Three Metals, One Tradition
             </span>
-            <h2 className="font-[family-name:var(--font-display)] text-4xl sm:text-5xl md:text-6xl">
+            <h2 className="font-[family-name:var(--font-display)] text-4xl sm:text-5xl md:text-6xl text-[#FDF9F3]">
               Shop by <span className="italic text-[var(--color-gold)]">Metal</span>
             </h2>
           </div>
@@ -49,7 +54,7 @@ export default function ShopByMetal() {
             <Link
               key={m.name}
               href={m.href}
-              className="group relative block aspect-[3/4] md:aspect-[3/4.4] overflow-hidden bg-[#1B0F08]"
+              className="group relative block aspect-[3/4] md:aspect-[3/4.4] overflow-hidden bg-[#1E0710]"
             >
               <Image
                 src={m.image}

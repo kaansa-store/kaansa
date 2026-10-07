@@ -299,34 +299,46 @@ export default async function HomePage() {
       <CorePrinciples />
 
       {/* 6. Auspicious Gifting Feature */}
-      <section className="relative overflow-hidden bg-[#24140B] text-white py-20 lg:py-28">
-        <div className="absolute inset-0 z-0 opacity-25">
+      <section className="relative overflow-hidden bg-[#2D0B18] text-white py-20 lg:py-28">
+        <div className="absolute inset-0 z-0 opacity-30">
           <Image
-            src="/images/gifting.jpg"
+            src="/images/gifting/hero-hampers.jpg"
             alt="Artisan Gifting Boxes"
             fill
             sizes="100vw"
             className="object-cover"
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-[#1B0D06] via-[#1B0D06]/85 to-transparent z-0" />
+        <div
+          className="absolute inset-0 opacity-[0.06] pointer-events-none bg-repeat bg-[length:360px_360px] z-[1]"
+          style={{ backgroundImage: 'url(/images/pattern.jpg)' }}
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#2D0B18] via-[#2D0B18]/90 to-transparent z-[2]" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-6">
           <div className="max-w-xl">
-            <span className="text-xs uppercase tracking-[0.2em] text-[var(--color-gold)] font-medium block mb-3 font-[family-name:var(--font-body)]">
+            <span className="text-xs uppercase tracking-[0.24em] text-[#E8D08A] font-medium block mb-3 font-[family-name:var(--font-body)]">
               Auspicious Gifting
             </span>
-            <h2 className="font-[family-name:var(--font-display)] text-3xl sm:text-4xl md:text-5xl text-[#FBF5EA] leading-tight mb-6">
-              Heirloom presents for weddings & new beginnings.
+            <h2 className="font-[family-name:var(--font-display)] text-3xl sm:text-4xl md:text-5xl text-[#FDF9F3] leading-tight mb-6">
+              Heirloom presents for weddings &amp; new beginnings.
             </h2>
-            <p className="font-[family-name:var(--font-body)] text-sm sm:text-base text-[#F3E7D3]/85 leading-relaxed mb-8 font-light">
+            <p className="font-[family-name:var(--font-body)] text-sm sm:text-base text-[#E5D2C2] leading-relaxed mb-8 font-light">
               Present handcrafted pooja thalis and polished urlis in royal velvet keepsake packaging. Gifts that carry blessings and endure across family generations.
             </p>
-            <Link href="/collections/all">
-              <Button variant="primary" size="md">
-                Discover Gifting Pieces
-              </Button>
-            </Link>
+            <div className="flex flex-wrap items-center gap-4">
+              <Link href="/personal-gifting">
+                <Button variant="primary" size="md" className="bg-[#FBF5EA] text-[#2D0B18] hover:bg-[#E8D08A]">
+                  Personal Gifting Atelier
+                </Button>
+              </Link>
+              <Link href="/collections/all">
+                <Button variant="outline-light" size="md">
+                  View Full Catalog
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>

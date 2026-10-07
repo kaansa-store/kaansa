@@ -108,7 +108,6 @@ export const GET_PRODUCT_INVENTORY_QUERY = /* GraphQL */ `
           node {
             id
             availableForSale
-            quantityAvailable
           }
         }
       }
