@@ -15,8 +15,14 @@ export interface HeaderProps {
 
 export function Header({ menuItems = [] }: HeaderProps) {
   const pathname = usePathname();
+  const [prevPathname, setPrevPathname] = useState(pathname);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    setMobileMenuOpen(false);
+  }
   const [customer, setCustomer] = useState<{ firstName: string | null; email: string } | null>(null);
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -116,26 +122,36 @@ export function Header({ menuItems = [] }: HeaderProps) {
     >
       <div className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between">
         {/* Mobile menu toggle */}
-        <div className="flex items-center md:hidden">
+        <div className="flex items-center md:hidden flex-shrink-0 relative z-20">
           <button
             type="button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-[var(--color-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)]"
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center p-2.5 -ml-2 text-[var(--color-text)] hover:text-[var(--color-accent)] cursor-pointer touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)] select-none"
             aria-label="Toggle navigation menu"
             aria-expanded={mobileMenuOpen}
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="pointer-events-none transition-transform duration-200"
+            >
               {mobileMenuOpen ? (
                 <path d="M18 6L6 18M6 6l12 12" />
               ) : (
-                <path d="M3 12h18M3 6h18M3 18h18" />
+                <path d="M4 6h16M4 12h16M4 18h16" />
               )}
             </svg>
           </button>
         </div>
 
         {/* Logo */}
-        <div className="flex-1 md:flex-none flex items-center justify-center md:justify-start">
+        <div className="flex-1 md:flex-none flex items-center justify-center md:justify-start min-w-0">
           <Link
             href="/"
             className="inline-flex items-center gap-2.5 sm:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)] group py-1"
@@ -299,58 +315,67 @@ export function Header({ menuItems = [] }: HeaderProps) {
 
       {/* Mobile nav drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-6 transition-all">
-          <nav className="flex flex-col space-y-4">
-            {navLinks.map((item) => {
-              const isActive = pathname === item.url;
-              return (
-                <Link
-                  key={item.url + item.title}
-                  href={item.url}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={clsx(
-                    'text-sm font-[family-name:var(--font-body)] uppercase tracking-[0.1em] py-1 transition-colors',
-                    isActive
-                      ? 'text-[var(--color-accent)] font-medium'
-                      : 'text-[var(--color-text)] hover:text-[var(--color-accent)]'
-                  )}
-                >
-                  {item.title}
-                </Link>
-              );
-            })}
+        <>
+          {/* Subtle backdrop to close on outside tap */}
+          <div
+            onClick={() => setMobileMenuOpen(false)}
+            className="md:hidden fixed inset-0 top-16 md:top-20 bg-black/25 backdrop-blur-xs z-10"
+            aria-hidden="true"
+          />
 
-            <div className="pt-4 border-t border-[var(--color-border)] flex flex-col space-y-3">
-              {customer ? (
-                <>
+          <div className="md:hidden border-b border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-6 transition-all max-h-[calc(100dvh-5rem)] overflow-y-auto relative z-20 shadow-lg">
+            <nav className="flex flex-col space-y-2">
+              {navLinks.map((item) => {
+                const isActive = pathname === item.url;
+                return (
                   <Link
-                    href="/account"
+                    key={item.url + item.title}
+                    href={item.url}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="text-sm font-[family-name:var(--font-body)] uppercase tracking-[0.1em] text-[var(--color-accent)] font-medium py-1"
+                    className={clsx(
+                      'text-sm font-[family-name:var(--font-body)] uppercase tracking-[0.1em] py-2.5 transition-colors min-h-[44px] flex items-center border-b border-[var(--color-border)]/40 last:border-b-0 touch-manipulation',
+                      isActive
+                        ? 'text-[var(--color-accent)] font-medium'
+                        : 'text-[var(--color-text)] hover:text-[var(--color-accent)]'
+                    )}
                   >
-                    My Account ({customer.firstName || 'Profile'})
+                    {item.title}
                   </Link>
-                  <form action={logoutAction}>
-                    <button
-                      type="submit"
-                      className="text-xs font-[family-name:var(--font-body)] uppercase tracking-[0.1em] text-[var(--color-muted)] hover:text-[var(--color-danger)] transition-colors py-1 cursor-pointer"
+                );
+              })}
+
+              <div className="pt-4 mt-2 border-t border-[var(--color-border)] flex flex-col space-y-3">
+                {customer ? (
+                  <>
+                    <Link
+                      href="/account"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-sm font-[family-name:var(--font-body)] uppercase tracking-[0.1em] text-[var(--color-accent)] font-medium py-2 min-h-[44px] flex items-center touch-manipulation"
                     >
-                      Sign out
-                    </button>
-                  </form>
-                </>
-              ) : (
-                <Link
-                  href="/account/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-sm font-[family-name:var(--font-body)] uppercase tracking-[0.1em] text-[var(--color-accent)] font-medium py-1"
-                >
-                  Sign in / Register
-                </Link>
-              )}
-            </div>
-          </nav>
-        </div>
+                      My Account ({customer.firstName || 'Profile'})
+                    </Link>
+                    <form action={logoutAction}>
+                      <button
+                        type="submit"
+                        className="text-xs font-[family-name:var(--font-body)] uppercase tracking-[0.1em] text-[var(--color-muted)] hover:text-[var(--color-danger)] transition-colors py-2 cursor-pointer touch-manipulation"
+                      >
+                        Sign out
+                      </button>
+                    </form>
+                  </>
+                ) : (
+                  <Link
+                    href="/account/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-sm font-[family-name:var(--font-body)] uppercase tracking-[0.1em] text-[var(--color-accent)] font-medium py-2 min-h-[44px] flex items-center touch-manipulation"
+                  >
+                    Sign in / Register
+                  </Link>
+                )}
+              </div>
+            </nav>
+          </div>
+        </>
       )}
     </header>
   );
