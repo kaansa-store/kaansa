@@ -1,6 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import { getProductRatingData } from '@/lib/reviews/data';
+import { reviewsEnabled } from '@/lib/site';
 
 export interface RatingBadgeProps {
   handle: string;
@@ -9,6 +10,7 @@ export interface RatingBadgeProps {
 }
 
 export function RatingBadge({ handle, className, size = 'sm' }: RatingBadgeProps) {
+  if (!reviewsEnabled) return null;
   const { summary } = getProductRatingData(handle);
 
   return (

@@ -28,7 +28,7 @@ export function saveLocalReview(
     id: `user-rev-${Date.now()}`,
     productHandle: handle,
     date: new Date().toISOString().split('T')[0],
-    verified: true,
+    verified: false,
     helpfulCount: 0,
   };
 

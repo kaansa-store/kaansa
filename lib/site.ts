@@ -13,3 +13,6 @@ export const siteContact = {
     '865, Gwal Toli, Civil Lines Road\nJhansi, Uttar Pradesh 284003\nIndia',
   hours: 'Monday to Saturday, 10am to 7pm IST',
 };
+
+export const reviewsEnabled = false;
+

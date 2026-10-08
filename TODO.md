@@ -34,3 +34,5 @@ This document outlines how real-time changes in Shopify Admin synchronize with t
 ## Security & Maintenance Notes
 
 - descriptionHtml is rendered as-is; only trusted Shopify staff and apps can edit it. Add a sanitizer if untrusted editors are ever given access.
+- Reviews are disabled. To enable them, connect a real review provider or a database, confirm seeded reviews are genuine, then set reviewsEnabled to true.
+

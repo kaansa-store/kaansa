@@ -8,6 +8,7 @@ import Divider from '@/components/ui/Divider';
 import { useCart } from '@/components/cart/CartContext';
 import { buyNowAction } from '@/app/(shop)/cart/actions';
 import { getProductRatingData } from '@/lib/reviews/data';
+import { reviewsEnabled } from '@/lib/site';
 
 export interface ProductDetailsProps {
   product: Product;
@@ -58,20 +59,22 @@ export function ProductDetails({ product, children }: ProductDetailsProps) {
       </h1>
 
       {/* Star Rating snippet */}
-      <a
-        href="#reviews"
-        className="mt-2.5 inline-flex items-center gap-2 text-xs font-[family-name:var(--font-body)] group cursor-pointer self-start focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-gold)]"
-      >
-        <span className="text-[var(--color-gold)] text-sm tracking-wider" aria-hidden="true">
-          ★★★★★
-        </span>
-        <span className="font-semibold text-[var(--color-text)]">
-          {ratingSummary.averageRating.toFixed(1)}
-        </span>
-        <span className="text-[var(--color-muted)] group-hover:text-[var(--color-accent)] transition-colors underline underline-offset-2">
-          ({ratingSummary.totalReviews} reviews)
-        </span>
-      </a>
+      {reviewsEnabled && (
+        <a
+          href="#reviews"
+          className="mt-2.5 inline-flex items-center gap-2 text-xs font-[family-name:var(--font-body)] group cursor-pointer self-start focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-gold)]"
+        >
+          <span className="text-[var(--color-gold)] text-sm tracking-wider" aria-hidden="true">
+            ★★★★★
+          </span>
+          <span className="font-semibold text-[var(--color-text)]">
+            {ratingSummary.averageRating.toFixed(1)}
+          </span>
+          <span className="text-[var(--color-muted)] group-hover:text-[var(--color-accent)] transition-colors underline underline-offset-2">
+            ({ratingSummary.totalReviews} reviews)
+          </span>
+        </a>
+      )}
 
       {/* Price */}
       <div className="mt-4 mb-6">

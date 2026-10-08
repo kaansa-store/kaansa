@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Review, ProductRatingSummary } from '@/lib/reviews/types';
 import { getAggregatedProductReviews, saveLocalReview } from '@/lib/reviews/storage';
 import { getProductRatingData } from '@/lib/reviews/data';
+import { reviewsEnabled } from '@/lib/site';
 import Button from '@/components/ui/Button';
 
 export interface ProductReviewsProps {
@@ -11,7 +12,8 @@ export interface ProductReviewsProps {
   productTitle: string;
 }
 
-export function ProductReviews({ productHandle, productTitle }: ProductReviewsProps) {
+function ProductReviewsContent({ productHandle, productTitle }: ProductReviewsProps) {
+
   // SSR initial state
   const initialData = useMemo(() => getProductRatingData(productHandle), [productHandle]);
   const [summary, setSummary] = useState<ProductRatingSummary>(initialData.summary);
@@ -448,6 +450,11 @@ export function ProductReviews({ productHandle, productTitle }: ProductReviewsPr
       </div>
     </section>
   );
+}
+
+export function ProductReviews(props: ProductReviewsProps) {
+  if (!reviewsEnabled) return null;
+  return <ProductReviewsContent {...props} />;
 }
 
 export default ProductReviews;
