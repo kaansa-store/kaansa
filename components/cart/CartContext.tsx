@@ -1,8 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useState, useTransition } from 'react';
+import React, { createContext, useContext, useState, useTransition, useEffect, useRef } from 'react';
 import { Cart } from '@/lib/shopify/types';
 import {
+  getCartAction,
   addToCartAction,
   updateCartItemAction,
   removeFromCartAction,
@@ -17,25 +18,44 @@ interface CartContextType {
   updateItem: (lineId: string, quantity: number) => Promise<void>;
   removeItem: (lineId: string) => Promise<void>;
   isPending: boolean;
+  isHydrated: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({
   children,
-  initialCart = null,
 }: {
   children: React.ReactNode;
-  initialCart?: Cart | null;
 }) {
-  const [cart, setCart] = useState<Cart | null>(initialCart);
+  const [cart, setCart] = useState<Cart | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const hasMutated = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    getCartAction()
+      .then((existing) => {
+        // Ignore a late hydration result if the shopper already added or changed something.
+        if (!cancelled && !hasMutated.current) setCart(existing);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setIsHydrated(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const openCart = () => setIsOpen(true);
   const closeCart = () => setIsOpen(false);
 
   const addItem = async (variantId: string, quantity = 1) => {
+    hasMutated.current = true;
+    setIsHydrated(true);
     startTransition(async () => {
       const updatedCart = await addToCartAction(variantId, quantity);
       if (updatedCart) {
@@ -46,6 +66,8 @@ export function CartProvider({
   };
 
   const updateItem = async (lineId: string, quantity: number) => {
+    hasMutated.current = true;
+    setIsHydrated(true);
     startTransition(async () => {
       const updatedCart = await updateCartItemAction(lineId, quantity);
       if (updatedCart) {
@@ -55,6 +77,8 @@ export function CartProvider({
   };
 
   const removeItem = async (lineId: string) => {
+    hasMutated.current = true;
+    setIsHydrated(true);
     startTransition(async () => {
       const updatedCart = await removeFromCartAction(lineId);
       if (updatedCart) {
@@ -74,6 +98,7 @@ export function CartProvider({
         updateItem,
         removeItem,
         isPending,
+        isHydrated,
       }}
     >
       {children}

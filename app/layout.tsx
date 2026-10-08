@@ -8,7 +8,6 @@ import CustomCursor from '@/components/ui/CustomCursor';
 import { CartProvider } from '@/components/cart/CartContext';
 import CartDrawer from '@/components/cart/CartDrawer';
 import { getMenu } from '@/lib/shopify';
-import { getCartAction } from '@/app/(shop)/cart/actions';
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -62,10 +61,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [mainMenu, footerMenu, initialCart] = await Promise.all([
+  const [mainMenu, footerMenu] = await Promise.all([
     getMenu('main-menu'),
     getMenu('footer'),
-    getCartAction(),
   ]);
 
   return (
@@ -74,7 +72,7 @@ export default async function RootLayout({
       className={`${cormorant.variable} ${playfair.variable} ${jost.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[var(--color-bg)] text-[var(--color-text)]">
-        <CartProvider initialCart={initialCart}>
+        <CartProvider>
           <CustomCursor />
           <AnnouncementBar />
           <Header menuItems={mainMenu} />

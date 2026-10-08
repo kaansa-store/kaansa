@@ -37,6 +37,8 @@ This document outlines how real-time changes in Shopify Admin synchronize with t
 - Reviews are disabled. To enable them, connect a real review provider or a database, confirm seeded reviews are genuine, then set reviewsEnabled to true.
 - Email setup: `CONTACT_FROM_EMAIL` must use a domain verified in Resend. `onboarding@resend.dev` is only for testing and normally delivers only to the Resend account owner's address, so customer auto-replies will not arrive until a domain is verified. All of `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, and `CONTACT_FROM_EMAIL` must be set in Vercel for Production, Preview, and Development.
 - Note that in-memory rate limits (IP limits and recipient auto-reply limits) reset per serverless instance. Connect Upstash Redis if persistent global rate limiting is required.
+- Layout is static; the cart loads on the client after mount. /collections/[handle] is dynamic because it reads searchParams and getCollectionMeta is no-store.
+- Stock on product pages is cached with the 'inventory' tag and only updates when the inventory_levels/update webhook fires. Register that webhook (it may need to be created through the Admin API rather than the Notifications page) or stock will lag by up to an hour.
 
 ## Before Launch Checklist
 

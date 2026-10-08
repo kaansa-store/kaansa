@@ -5,10 +5,11 @@ import Link from 'next/link';
 import { useCart } from './CartContext';
 import CartItem from './CartItem';
 import Button from '@/components/ui/Button';
+import Skeleton from '@/components/ui/Skeleton';
 import { formatPrice } from '@/lib/utils/format';
 
 export function CartSummary() {
-  const { cart, updateItem, removeItem, isPending } = useCart();
+  const { cart, updateItem, removeItem, isPending, isHydrated } = useCart();
   const lines = cart?.lines || [];
   const subtotal = cart?.cost.subtotalAmount.amount || '0';
   const currency = cart?.cost.subtotalAmount.currencyCode || 'INR';
@@ -18,6 +19,22 @@ export function CartSummary() {
       window.location.href = cart.checkoutUrl;
     }
   };
+
+  if (!isHydrated) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        <div className="lg:col-span-8 space-y-4">
+          <Skeleton className="h-28 w-full" />
+          <Skeleton className="h-28 w-full" />
+        </div>
+        <div className="lg:col-span-4 bg-[var(--color-surface)] p-8 border border-[var(--color-border)] h-fit space-y-4">
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-12 w-full" />
+        </div>
+      </div>
+    );
+  }
 
   if (lines.length === 0) {
     return (

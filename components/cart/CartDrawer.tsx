@@ -5,10 +5,11 @@ import Link from 'next/link';
 import { useCart } from './CartContext';
 import CartItem from './CartItem';
 import Button from '@/components/ui/Button';
+import Skeleton from '@/components/ui/Skeleton';
 import { formatPrice } from '@/lib/utils/format';
 
 export function CartDrawer() {
-  const { cart, isOpen, closeCart, updateItem, removeItem, isPending } = useCart();
+  const { cart, isOpen, closeCart, updateItem, removeItem, isPending, isHydrated } = useCart();
 
   if (!isOpen) return null;
 
@@ -58,7 +59,12 @@ export function CartDrawer() {
 
           {/* Cart Items List */}
           <div className="flex-1 overflow-y-auto px-6 py-4 divide-y divide-[var(--color-border)]">
-            {lines.length === 0 ? (
+            {!isHydrated ? (
+              <div className="py-6 space-y-4">
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
+              </div>
+            ) : lines.length === 0 ? (
               <div className="py-20 text-center flex flex-col items-center justify-center">
                 <h3 className="font-[family-name:var(--font-heading)] text-xl text-[var(--color-text)] mb-2">
                   Nothing here yet
