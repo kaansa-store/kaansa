@@ -35,4 +35,14 @@ This document outlines how real-time changes in Shopify Admin synchronize with t
 
 - descriptionHtml is rendered as-is; only trusted Shopify staff and apps can edit it. Add a sanitizer if untrusted editors are ever given access.
 - Reviews are disabled. To enable them, connect a real review provider or a database, confirm seeded reviews are genuine, then set reviewsEnabled to true.
+- Email setup: `CONTACT_FROM_EMAIL` must use a domain verified in Resend. `onboarding@resend.dev` is only for testing and normally delivers only to the Resend account owner's address, so customer auto-replies will not arrive until a domain is verified. All of `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, and `CONTACT_FROM_EMAIL` must be set in Vercel for Production, Preview, and Development.
+- Note that in-memory rate limits (IP limits and recipient auto-reply limits) reset per serverless instance. Connect Upstash Redis if persistent global rate limiting is required.
+
+## Before Launch Checklist
+
+- [ ] Rotate the Shopify Storefront access token
+- [ ] Confirm the GitHub repository is private
+- [ ] Set all Vercel environment variables (`SHOPIFY_STORE_DOMAIN`, `SHOPIFY_STOREFRONT_ACCESS_TOKEN`, `SHOPIFY_REVALIDATION_SECRET`, `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL`, `NEXT_PUBLIC_SITE_URL`)
+- [ ] Run `pnpm audit --audit-level=high`
+- [ ] Replace `'unsafe-inline'` in Content-Security-Policy with a nonce-based policy
 

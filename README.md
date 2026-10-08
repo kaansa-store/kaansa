@@ -61,29 +61,33 @@ After registering, make a test change in Shopify Admin (edit any product title a
 
 ## Email Setup (Resend)
 
-1. Go to https://resend.com and create a free account.
+1. Go to https://resend.com and create an account.
 
 2. In the Resend dashboard → API Keys → Create API key.
    Name it "Kaansa contact form". Give it "Sending access" only.
-   Copy the key (starts with re_).
+   Copy the key (starts with `re_`).
 
-3. Add to .env.local:
+3. Add to `.env.local`:
    ```bash
    RESEND_API_KEY=re_your_key_here
    CONTACT_TO_EMAIL=kaansaindia@gmail.com
    CONTACT_FROM_EMAIL=contact@yourdomain.com
    ```
 
-4. CONTACT_FROM_EMAIL must be a verified sender in Resend.
-   Two options:
-   a) Verify your domain (yourdomain.com) in Resend → Domains.
-      This is the recommended option for production.
-      Resend will give you DNS records to add to your domain registrar.
-   b) If you do not have a custom domain yet, use Resend's shared
-      sender: onboarding@resend.dev (works on free tier for testing).
-      Set CONTACT_FROM_EMAIL=onboarding@resend.dev for now.
+4. **Important Verified Domain Requirement**:
+   `CONTACT_FROM_EMAIL` must use a domain verified in Resend. `onboarding@resend.dev` is only for testing and normally delivers only to the Resend account owner's address, so customer auto-replies will not arrive until a domain is verified. Verify your custom domain in Resend → Domains and add the required DNS records (DKIM, SPF) to your domain registrar.
 
-5. Add all three env vars to Vercel:
-   Vercel dashboard → Settings → Environment Variables
-   Add RESEND_API_KEY, CONTACT_TO_EMAIL, CONTACT_FROM_EMAIL
-   for Production, Preview and Development.
+5. **Serverless Rate Limiting**:
+   Note that the in-memory rate limits (per-IP form submissions and per-recipient auto-reply limits) reset per serverless instance. For distributed rate-limiting across all serverless invocations, connect Upstash Redis.
+
+6. **Vercel Configuration**:
+   All of `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, and `CONTACT_FROM_EMAIL` must be set in Vercel for Production, Preview, and Development (Vercel dashboard → Settings → Environment Variables).
+
+## Before Launch Checklist
+
+- [ ] Rotate the Shopify Storefront access token
+- [ ] Confirm the GitHub repository is private
+- [ ] Set all production environment variables in Vercel (`SHOPIFY_STORE_DOMAIN`, `SHOPIFY_STOREFRONT_ACCESS_TOKEN`, `SHOPIFY_REVALIDATION_SECRET`, `RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL`, `NEXT_PUBLIC_SITE_URL`)
+- [ ] Run `pnpm audit --audit-level=high`
+- [ ] Replace `'unsafe-inline'` in Content-Security-Policy with a nonce-based CSP
+
