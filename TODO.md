@@ -8,7 +8,7 @@ This document outlines how real-time changes in Shopify Admin synchronize with t
 | **Change price** | Same as above |
 | **Add/change product image** | Same as above |
 | **Update description** | Same as above |
-| **Change stock quantity** | `inventory_levels/update` webhook fires → `LiveInventory` server component streams live count on next page visit (no cache, always live) |
+| **Change stock quantity** | The `inventory_levels/update` webhook revalidates the 'inventory' tag, and the product page shows the new stock on the next request. It is cached, not live, and can lag up to 1 hour if the webhook is missing. |
 | **Mark product as sold out** | `availableForSale = false` → `LiveInventory` shows "Sold out", Add to cart disabled |
 | **Unpublish a product** | `products/unpublish` webhook → page revalidates → product disappears from grids, its URL returns 404 |
 | **Add a new product** | `products/create` webhook → appears in grids on next visit |
@@ -39,6 +39,7 @@ This document outlines how real-time changes in Shopify Admin synchronize with t
 - Note that in-memory rate limits (IP limits and recipient auto-reply limits) reset per serverless instance. Connect Upstash Redis if persistent global rate limiting is required.
 - Layout is static; the cart loads on the client after mount. /collections/[handle] is dynamic because it reads searchParams and getCollectionMeta is no-store.
 - Stock on product pages is cached with the 'inventory' tag and only updates when the inventory_levels/update webhook fires. Register that webhook (it may need to be created through the Admin API rather than the Notifications page) or stock will lag by up to an hour.
+- Showing 'Only N left' needs the unauthenticated_read_product_inventory scope on the Storefront token.
 
 ## Before Launch Checklist
 
