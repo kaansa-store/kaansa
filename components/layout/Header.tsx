@@ -68,18 +68,40 @@ export function Header({ menuItems = [] }: HeaderProps) {
       : [
           { title: 'Home', url: '/' },
           { title: 'Collections', url: '/collections' },
-          { title: 'About', url: '/about' },
+          { title: 'Personal Gifting', url: '/personal-gifting' },
+          { title: 'About Us', url: '/about' },
           { title: 'Contact', url: '/contact' },
         ];
 
-  const hasGifting = baseLinks.some((item) => item.url.includes('gifting'));
-  const navLinks = hasGifting
-    ? baseLinks
-    : [
-        ...baseLinks.slice(0, 2),
-        { title: 'Personal Gifting', url: '/personal-gifting' },
-        ...baseLinks.slice(2),
-      ];
+  let links = [...baseLinks];
+
+  // Ensure Personal Gifting is in nav
+  const hasGifting = links.some((item) => item.url.includes('gifting'));
+  if (!hasGifting) {
+    const catalogIdx = links.findIndex(
+      (item) => item.url.includes('collection') || item.title.toLowerCase().includes('catalog')
+    );
+    const insertIdx = catalogIdx !== -1 ? catalogIdx + 1 : Math.min(2, links.length);
+    links.splice(insertIdx, 0, { title: 'Personal Gifting', url: '/personal-gifting' });
+  }
+
+  // Ensure About Us is in nav
+  const hasAbout = links.some((item) => item.url === '/about' || item.url.includes('about'));
+  if (!hasAbout) {
+    const contactIdx = links.findIndex(
+      (item) => item.url.includes('contact') || item.title.toLowerCase().includes('contact')
+    );
+    const insertIdx = contactIdx !== -1 ? contactIdx : links.length;
+    links.splice(insertIdx, 0, { title: 'About Us', url: '/about' });
+  } else {
+    links = links.map((item) =>
+      item.url === '/about' || item.url.includes('about')
+        ? { ...item, title: item.title === 'About' ? 'About Us' : item.title }
+        : item
+    );
+  }
+
+  const navLinks = links;
 
   const initial = customer?.firstName ? customer.firstName.charAt(0).toUpperCase() : 'A';
 
@@ -140,17 +162,30 @@ export function Header({ menuItems = [] }: HeaderProps) {
         </div>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center space-x-8 lg:space-x-10" aria-label="Main Navigation">
-          {navLinks.map((item) => (
-            <Link
-              key={item.url + item.title}
-              href={item.url}
-              className="text-xs lg:text-sm font-[family-name:var(--font-body)] uppercase tracking-[0.1em] text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors relative py-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)]"
-            >
-              {item.title}
-              <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[var(--color-gold)] transition-all duration-300 group-hover:w-full" />
-            </Link>
-          ))}
+        <nav className="hidden md:flex items-center space-x-6 lg:space-x-8 xl:space-x-10" aria-label="Main Navigation">
+          {navLinks.map((item) => {
+            const isActive = pathname === item.url;
+            return (
+              <Link
+                key={item.url + item.title}
+                href={item.url}
+                className={clsx(
+                  'text-xs lg:text-sm font-[family-name:var(--font-body)] uppercase tracking-[0.1em] transition-colors relative py-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)]',
+                  isActive
+                    ? 'text-[var(--color-accent)] font-medium'
+                    : 'text-[var(--color-text)] hover:text-[var(--color-accent)]'
+                )}
+              >
+                {item.title}
+                <span
+                  className={clsx(
+                    'absolute bottom-0 left-0 h-[1.5px] bg-[var(--color-gold)] transition-all duration-300',
+                    isActive ? 'w-full' : 'w-0 group-hover:w-full'
+                  )}
+                />
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Icons */}
@@ -266,16 +301,24 @@ export function Header({ menuItems = [] }: HeaderProps) {
       {mobileMenuOpen && (
         <div className="md:hidden border-b border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-6 transition-all">
           <nav className="flex flex-col space-y-4">
-            {navLinks.map((item) => (
-              <Link
-                key={item.url + item.title}
-                href={item.url}
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-sm font-[family-name:var(--font-body)] uppercase tracking-[0.1em] text-[var(--color-text)] hover:text-[var(--color-accent)] py-1"
-              >
-                {item.title}
-              </Link>
-            ))}
+            {navLinks.map((item) => {
+              const isActive = pathname === item.url;
+              return (
+                <Link
+                  key={item.url + item.title}
+                  href={item.url}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={clsx(
+                    'text-sm font-[family-name:var(--font-body)] uppercase tracking-[0.1em] py-1 transition-colors',
+                    isActive
+                      ? 'text-[var(--color-accent)] font-medium'
+                      : 'text-[var(--color-text)] hover:text-[var(--color-accent)]'
+                  )}
+                >
+                  {item.title}
+                </Link>
+              );
+            })}
 
             <div className="pt-4 border-t border-[var(--color-border)] flex flex-col space-y-3">
               {customer ? (
