@@ -11,13 +11,14 @@ import {
   customerAddressCreate,
   customerAddressDelete,
   updateCartBuyerIdentity,
-  getCustomer,
+  getCustomerSummary,
 } from '@/lib/shopify';
 import {
   setCustomerToken,
   clearCustomerToken,
   getCustomerToken,
 } from '@/lib/utils/session';
+import { safeAccountRedirect } from '@/lib/utils/redirect';
 
 const CART_COOKIE_NAME = 'kaansa_cart_id';
 
@@ -76,7 +77,7 @@ export async function loginAction(
     return { error: 'Unable to connect to service. Please try again.' };
   }
 
-  const destination = from && from.startsWith('/') && !from.startsWith('//') ? from : '/account';
+  const destination = safeAccountRedirect(from);
   redirect(destination);
 }
 
@@ -150,18 +151,19 @@ export async function forgotAction(
 
   try {
     const res = await customerRecover(email);
-    console.log('[ForgotAction Shopify Response for', email, ']:', JSON.stringify(res));
     if (res?.customerUserErrors && res.customerUserErrors.length > 0) {
-      console.warn('[ForgotAction UserErrors]', res.customerUserErrors);
-      return { error: res.customerUserErrors[0].message };
+      const code = res.customerUserErrors[0].code || 'USER_ERROR';
+      console.warn('[ForgotAction Error Code]', code);
     }
-  } catch (err) {
-    console.error('[ForgotAction Error]', err);
-    return { error: 'Failed to request password reset. Please try again.' };
+  } catch {
+    console.error('[ForgotAction Exception]');
   }
 
-  // Always return success — do not reveal if email exists
-  return { success: 'If that email is registered in Shopify, a reset link is on its way. Check your inbox and spam folder.' };
+  // Always return generic success — do not reveal if email exists
+  return {
+    success:
+      'If that email is registered in Shopify, a reset link is on its way. Check your inbox and spam folder.',
+  };
 }
 
 // ─── Logout ──────────────────────────────────────────────────────
@@ -175,6 +177,8 @@ export async function logoutAction() {
     }
   }
   await clearCustomerToken();
+  const cookieStore = await cookies();
+  cookieStore.delete(CART_COOKIE_NAME);
   redirect('/');
 }
 
@@ -228,7 +232,7 @@ export async function getCustomerSessionAction() {
   const token = await getCustomerToken();
   if (!token) return null;
 
-  const customer = await getCustomer(token);
+  const customer = await getCustomerSummary(token);
   if (!customer) return null;
 
   return {

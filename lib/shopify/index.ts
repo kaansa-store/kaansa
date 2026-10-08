@@ -28,6 +28,7 @@ import {
   CUSTOMER_ADDRESS_DELETE,
   CUSTOMER_DEFAULT_ADDRESS_UPDATE,
   GET_CUSTOMER,
+  GET_CUSTOMER_SUMMARY,
 } from './queries/customer';
 import {
   MenuItem,
@@ -547,6 +548,30 @@ export async function getCustomer(accessToken: string): Promise<Customer | null>
     return res.data?.customer ?? null;
   } catch (error) {
     console.error('[Shopify GetCustomer Error]', error);
+    return null;
+  }
+}
+
+export async function getCustomerSummary(accessToken: string): Promise<{
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+} | null> {
+  try {
+    const res = await shopifyFetch<{
+      customer: {
+        firstName: string | null;
+        lastName: string | null;
+        email: string;
+      } | null;
+    }>({
+      query: GET_CUSTOMER_SUMMARY,
+      variables: { customerAccessToken: accessToken },
+      cache: 'no-store',
+    });
+    return res.data?.customer ?? null;
+  } catch (error) {
+    console.error('[Shopify GetCustomerSummary Error]', error);
     return null;
   }
 }

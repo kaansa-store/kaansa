@@ -170,3 +170,14 @@ export const GET_CUSTOMER = /* GraphQL */ `
     }
   }
 `;
+
+export const GET_CUSTOMER_SUMMARY = /* GraphQL */ `
+  query GetCustomerSummary($customerAccessToken: String!) {
+    customer(customerAccessToken: $customerAccessToken) {
+      firstName
+      lastName
+      email
+    }
+  }
+`;
+

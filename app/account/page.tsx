@@ -12,7 +12,7 @@ export default async function AccountPage() {
   if (!token) redirect('/account/login');
 
   const customer = await getCustomer(token);
-  if (!customer) redirect('/account/logout');
+  if (!customer) redirect('/account/session-expired');
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)] px-6 py-20 sm:py-24 max-w-4xl mx-auto">

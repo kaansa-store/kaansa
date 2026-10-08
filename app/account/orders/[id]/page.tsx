@@ -34,7 +34,7 @@ export default async function OrderDetailPage({
   if (!token) redirect('/account/login');
 
   const customer = await getCustomer(token);
-  if (!customer) redirect('/account/logout');
+  if (!customer) redirect('/account/session-expired');
 
   const order = customer.orders?.edges
     ?.map((e) => e.node)
