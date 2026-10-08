@@ -1,4 +1,5 @@
 import { shopifyFetch } from './client';
+import { getBuyerIp } from '@/lib/utils/buyer-ip';
 import { getMenuQuery } from './queries/menu';
 import {
   getProductQuery,
@@ -372,6 +373,7 @@ export async function getCollection(
 
 export async function createCart(lines: { merchandiseId: string; quantity: number }[] = []): Promise<Cart | null> {
   try {
+    const buyerIp = await getBuyerIp();
     const res = await shopifyFetch<{
       cartCreate: {
         cart: ShopifyCart | null;
@@ -385,6 +387,7 @@ export async function createCart(lines: { merchandiseId: string; quantity: numbe
         },
       },
       cache: 'no-store',
+      buyerIp,
     });
 
     if (res.data.cartCreate.userErrors?.length) {
@@ -400,10 +403,12 @@ export async function createCart(lines: { merchandiseId: string; quantity: numbe
 
 export async function getCart(cartId: string): Promise<Cart | null> {
   try {
+    const buyerIp = await getBuyerIp();
     const res = await shopifyFetch<{ cart: ShopifyCart | null }>({
       query: getCartQuery,
       variables: { cartId },
       cache: 'no-store',
+      buyerIp,
     });
 
     return reshapeCart(res.data.cart);
@@ -418,6 +423,7 @@ export async function addToCart(
   lines: { merchandiseId: string; quantity: number }[]
 ): Promise<Cart | null> {
   try {
+    const buyerIp = await getBuyerIp();
     const res = await shopifyFetch<{
       cartLinesAdd: {
         cart: ShopifyCart | null;
@@ -427,6 +433,7 @@ export async function addToCart(
       query: addToCartMutation,
       variables: { cartId, lines },
       cache: 'no-store',
+      buyerIp,
     });
 
     if (res.data.cartLinesAdd.userErrors?.length) {
@@ -445,6 +452,7 @@ export async function updateCart(
   lines: { id: string; quantity: number }[]
 ): Promise<Cart | null> {
   try {
+    const buyerIp = await getBuyerIp();
     const res = await shopifyFetch<{
       cartLinesUpdate: {
         cart: ShopifyCart | null;
@@ -454,6 +462,7 @@ export async function updateCart(
       query: updateCartMutation,
       variables: { cartId, lines },
       cache: 'no-store',
+      buyerIp,
     });
 
     return reshapeCart(res.data.cartLinesUpdate.cart);
@@ -465,6 +474,7 @@ export async function updateCart(
 
 export async function removeFromCart(cartId: string, lineIds: string[]): Promise<Cart | null> {
   try {
+    const buyerIp = await getBuyerIp();
     const res = await shopifyFetch<{
       cartLinesRemove: {
         cart: ShopifyCart | null;
@@ -474,6 +484,7 @@ export async function removeFromCart(cartId: string, lineIds: string[]): Promise
       query: removeFromCartMutation,
       variables: { cartId, lineIds },
       cache: 'no-store',
+      buyerIp,
     });
 
     return reshapeCart(res.data.cartLinesRemove.cart);
@@ -486,6 +497,7 @@ export async function removeFromCart(cartId: string, lineIds: string[]): Promise
 // ─── Customer Authentication & Account ───────────────────────────
 
 export async function customerLogin(email: string, password: string) {
+  const buyerIp = await getBuyerIp();
   const res = await shopifyFetch<{
     customerAccessTokenCreate: {
       customerAccessToken: CustomerAccessToken | null;
@@ -495,15 +507,18 @@ export async function customerLogin(email: string, password: string) {
     query: CUSTOMER_ACCESS_TOKEN_CREATE,
     variables: { input: { email, password } },
     cache: 'no-store',
+    buyerIp,
   });
   return res.data.customerAccessTokenCreate;
 }
 
 export async function customerLogout(accessToken: string) {
+  const buyerIp = await getBuyerIp();
   await shopifyFetch({
     query: CUSTOMER_ACCESS_TOKEN_DELETE,
     variables: { customerAccessToken: accessToken },
     cache: 'no-store',
+    buyerIp,
   });
 }
 
@@ -514,6 +529,7 @@ export async function customerRegister(input: {
   password: string;
   acceptsMarketing?: boolean;
 }) {
+  const buyerIp = await getBuyerIp();
   const res = await shopifyFetch<{
     customerCreate: {
       customer: { id: string; email: string } | null;
@@ -523,27 +539,32 @@ export async function customerRegister(input: {
     query: CUSTOMER_CREATE,
     variables: { input },
     cache: 'no-store',
+    buyerIp,
   });
   return res.data.customerCreate;
 }
 
 export async function customerRecover(email: string) {
+  const buyerIp = await getBuyerIp();
   const res = await shopifyFetch<{
     customerRecover: { customerUserErrors: CustomerUserError[] };
   }>({
     query: CUSTOMER_RECOVER,
     variables: { email },
     cache: 'no-store',
+    buyerIp,
   });
   return res.data.customerRecover;
 }
 
 export async function getCustomer(accessToken: string): Promise<Customer | null> {
   try {
+    const buyerIp = await getBuyerIp();
     const res = await shopifyFetch<{ customer: Customer | null }>({
       query: GET_CUSTOMER,
       variables: { customerAccessToken: accessToken },
       cache: 'no-store', // always fresh — orders, addresses change
+      buyerIp,
     });
     return res.data?.customer ?? null;
   } catch (error) {
@@ -558,6 +579,7 @@ export async function getCustomerSummary(accessToken: string): Promise<{
   email: string;
 } | null> {
   try {
+    const buyerIp = await getBuyerIp();
     const res = await shopifyFetch<{
       customer: {
         firstName: string | null;
@@ -568,6 +590,7 @@ export async function getCustomerSummary(accessToken: string): Promise<{
       query: GET_CUSTOMER_SUMMARY,
       variables: { customerAccessToken: accessToken },
       cache: 'no-store',
+      buyerIp,
     });
     return res.data?.customer ?? null;
   } catch (error) {
@@ -580,6 +603,7 @@ export async function customerAddressCreate(
   accessToken: string,
   address: Omit<CustomerAddress, 'id' | 'isDefault'>
 ) {
+  const buyerIp = await getBuyerIp();
   const res = await shopifyFetch<{
     customerAddressCreate: {
       customerAddress: { id: string } | null;
@@ -589,6 +613,7 @@ export async function customerAddressCreate(
     query: CUSTOMER_ADDRESS_CREATE,
     variables: { customerAccessToken: accessToken, address },
     cache: 'no-store',
+    buyerIp,
   });
   return res.data.customerAddressCreate;
 }
@@ -597,6 +622,7 @@ export async function customerAddressDelete(
   accessToken: string,
   id: string
 ) {
+  const buyerIp = await getBuyerIp();
   const res = await shopifyFetch<{
     customerAddressDelete: {
       deletedCustomerAddressId: string | null;
@@ -606,6 +632,7 @@ export async function customerAddressDelete(
     query: CUSTOMER_ADDRESS_DELETE,
     variables: { customerAccessToken: accessToken, id },
     cache: 'no-store',
+    buyerIp,
   });
   return res.data.customerAddressDelete;
 }
@@ -614,6 +641,7 @@ export async function customerDefaultAddressUpdate(
   accessToken: string,
   addressId: string
 ) {
+  const buyerIp = await getBuyerIp();
   const res = await shopifyFetch<{
     customerDefaultAddressUpdate: {
       customer: { id: string } | null;
@@ -623,6 +651,7 @@ export async function customerDefaultAddressUpdate(
     query: CUSTOMER_DEFAULT_ADDRESS_UPDATE,
     variables: { customerAccessToken: accessToken, addressId },
     cache: 'no-store',
+    buyerIp,
   });
   return res.data.customerDefaultAddressUpdate;
 }
@@ -632,6 +661,7 @@ export async function updateCartBuyerIdentity(
   customerAccessToken: string
 ): Promise<Cart | null> {
   try {
+    const buyerIp = await getBuyerIp();
     const res = await shopifyFetch<{
       cartBuyerIdentityUpdate: {
         cart: ShopifyCart | null;
@@ -644,6 +674,7 @@ export async function updateCartBuyerIdentity(
         buyerIdentity: { customerAccessToken },
       },
       cache: 'no-store',
+      buyerIp,
     });
 
     if (res.data.cartBuyerIdentityUpdate.userErrors?.length) {
@@ -656,4 +687,5 @@ export async function updateCartBuyerIdentity(
     return null;
   }
 }
+
 

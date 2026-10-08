@@ -8,11 +8,13 @@ export async function shopifyFetch<T>({
   variables,
   tags,
   cache = 'force-cache',
+  buyerIp,
 }: {
   query: string;
   variables?: Record<string, unknown>;
   tags?: string[];
   cache?: RequestCache;
+  buyerIp?: string;
 }): Promise<{ data: T; errors?: { message: string }[] }> {
   const rawDomain = process.env.SHOPIFY_STORE_DOMAIN?.trim().replace(/^['"]|['"]$/g, '');
   const rawToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN?.trim().replace(/^['"]|['"]$/g, '');
@@ -30,6 +32,7 @@ export async function shopifyFetch<T>({
     ...(isPrivateToken
       ? { 'Shopify-Storefront-Private-Token': rawToken }
       : { 'X-Shopify-Storefront-Access-Token': rawToken }),
+    ...(buyerIp ? { 'Shopify-Storefront-Buyer-IP': buyerIp } : {}),
   };
 
   const res = await fetch(endpoint, {
@@ -41,8 +44,7 @@ export async function shopifyFetch<T>({
   });
 
   if (!res.ok) {
-    const text = await res.text();
-    console.error(`[Shopify HTTP Error ${res.status}]`, text);
+    console.error(`[Shopify HTTP Error ${res.status}]`);
     throw new Error(`Shopify fetch failed with HTTP ${res.status}: ${res.statusText}`);
   }
 

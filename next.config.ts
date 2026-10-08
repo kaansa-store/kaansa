@@ -24,12 +24,13 @@ const nextConfig: NextConfig = {
             value: 'max-age=63072000; includeSubDomains; preload',
           },
           // In development, Turbopack and React Fast Refresh require unsafe-eval and WebSocket HMR
+          // TODO: Replace 'unsafe-inline' with a nonce-based CSP
           {
             key: 'Content-Security-Policy',
             value:
               process.env.NODE_ENV === 'production'
-                ? "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://cdn.shopify.com; media-src 'self'; connect-src 'self' https://*.myshopify.com; frame-ancestors 'none';"
-                : "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://cdn.shopify.com; media-src 'self'; connect-src 'self' ws: wss: http: https: https://*.myshopify.com; frame-ancestors 'none';",
+                ? "default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://cdn.shopify.com; media-src 'self'; connect-src 'self' https://*.myshopify.com; frame-ancestors 'none';"
+                : "default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://cdn.shopify.com; media-src 'self'; connect-src 'self' ws: wss: http: https: https://*.myshopify.com; frame-ancestors 'none';",
           },
         ],
       },

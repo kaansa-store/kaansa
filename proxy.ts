@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const PROTECTED_ROUTES = ['/account'];
 const AUTH_ROUTES = ['/account/login', '/account/register', '/account/forgot', '/account/session-expired'];
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const token = req.cookies.get('kaansa_customer_token')?.value;
   const { pathname } = req.nextUrl;
 
