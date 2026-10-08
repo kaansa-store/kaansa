@@ -31,4 +31,6 @@ This document outlines how real-time changes in Shopify Admin synchronize with t
 | **Publish a collection** | `collections/update` webhook → appears on `/collections` in ~2 seconds |
 | **Unpublish a collection** | Same as above, disappears |
 | **No webhook (webhook fails)** | `revalidate = 3600` safety net, change appears within 1 hour maximum |
+## Security & Maintenance Notes
 
+- descriptionHtml is rendered as-is; only trusted Shopify staff and apps can edit it. Add a sanitizer if untrusted editors are ever given access.

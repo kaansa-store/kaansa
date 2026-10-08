@@ -8,7 +8,7 @@ import RelatedProducts from '@/components/product/RelatedProducts';
 import StickyAddToCart from '@/components/product/StickyAddToCart';
 import ProductReviews from '@/components/product/ProductReviews';
 import LiveInventory from '@/components/product/LiveInventory';
-import { getProductRatingData } from '@/lib/reviews/data';
+import { jsonLdString } from '@/lib/utils/jsonld';
 
 interface PageProps {
   params: Promise<{ handle: string }>;
@@ -60,7 +60,6 @@ export default async function ProductPage(props: PageProps) {
 
   // Fetch recommendations in parallel
   const recommendations = await getProductRecommendations(product.id);
-  const ratingData = getProductRatingData(product.handle);
 
   // Structured Data (JSON-LD)
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
@@ -71,13 +70,6 @@ export default async function ProductPage(props: PageProps) {
     description: product.description,
     image: product.images.map((img) => img.url),
     brand: { '@type': 'Brand', name: 'Kaansa' },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: ratingData.summary.averageRating,
-      reviewCount: ratingData.summary.totalReviews,
-      bestRating: 5,
-      worstRating: 1,
-    },
     offers: {
       '@type': 'Offer',
       priceCurrency: product.variants?.[0]?.price.currencyCode || 'INR',
@@ -103,11 +95,11 @@ export default async function ProductPage(props: PageProps) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdString(productJsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumbJsonLd) }}
       />
 
       <div className="max-w-7xl mx-auto px-6 py-12 lg:py-20">

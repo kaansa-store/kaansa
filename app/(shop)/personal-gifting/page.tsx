@@ -12,6 +12,7 @@ import GiftingFaq from '@/components/gifting/GiftingFaq';
 import GiftingEnquiryForm from '@/components/gifting/GiftingEnquiryForm';
 import WhatsAppStrip from '@/components/gifting/WhatsAppStrip';
 import StoreExperience from '@/components/gifting/StoreExperience';
+import { jsonLdString } from '@/lib/utils/jsonld';
 
 export const metadata: Metadata = {
   title: 'Personal Gifting — Bespoke Wedding Favours & Heirloom Metalware',
@@ -63,7 +64,7 @@ export default function PersonalGiftingPage() {
     <div className="bg-[var(--color-bg)]">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }}
       />
 
       {/* 1. Hero with Wine Backdrop, Craft Ticker & CTA */}

@@ -8,6 +8,7 @@ import CollectionFilters from '@/components/product/CollectionFilters';
 import Divider from '@/components/ui/Divider';
 import LiveCollectionMeta from '@/components/collection/LiveCollectionMeta';
 import Skeleton from '@/components/ui/Skeleton';
+import { jsonLdString } from '@/lib/utils/jsonld';
 
 interface PageProps {
   params: Promise<{ handle: string }>;
@@ -96,7 +97,7 @@ export default async function CollectionDetailPage(props: PageProps) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumbJsonLd) }}
       />
 
       {/* Visual Header Banner */}
