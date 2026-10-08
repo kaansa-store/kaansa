@@ -42,3 +42,13 @@ next-env.d.ts
 .env.local
 node_modules
 !.env.example
+
+# package manager cache
+.pnpm-store
+.pnpm-store/
+
+# internal & large assets
+about-us.pdf
+personal-gifting.pdf
+Policies/*.docx
+

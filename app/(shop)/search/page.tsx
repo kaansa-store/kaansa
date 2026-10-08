@@ -16,10 +16,11 @@ export default async function SearchPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q } = await searchParams;
-  const rawQuery = q?.trim() || '';
+  const rawQuery = (q || '').trim().slice(0, 80);
 
+  // TODO: Move to server-side search with pagination once the catalogue passes 250 products
   // Fetch products
-  const allProducts = await getProducts({ first: 100 });
+  const allProducts = await getProducts({ first: 250 });
 
   let results: Product[] = [];
   if (rawQuery) {
