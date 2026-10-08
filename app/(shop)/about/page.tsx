@@ -1,31 +1,34 @@
 import type { Metadata } from 'next';
 import AboutHero from '@/components/about/AboutHero';
-import AboutWhyKaansa from '@/components/about/AboutWhyKaansa';
-import AboutPillars from '@/components/about/AboutPillars';
-import AboutArtisans from '@/components/about/AboutArtisans';
-import AboutPrinciples from '@/components/about/AboutPrinciples';
-import AboutImpact from '@/components/about/AboutImpact';
-import AboutMission from '@/components/about/AboutMission';
+import AboutMetals from '@/components/about/AboutMetals';
+import AboutExpect from '@/components/about/AboutExpect';
+import AboutGifting from '@/components/about/AboutGifting';
+import AboutLegacy from '@/components/about/AboutLegacy';
 
 export const metadata: Metadata = {
-  title: 'About Us | Kaansa Artisan Heritage',
+  title: {
+    absolute: 'About Kaansa | Handcrafted Brass, Bronze and Copper from India',
+  },
   description:
-    'Discover the story of KAANSA — handcrafted Indian brass, bell-metal (kansa), and copper pieces made by generational master artisans for sacred rituals and mindful everyday living.',
+    'Kaansa makes handcrafted brass, bronze and copper pieces for the puja room, the kitchen and the home. Rooted in tradition, crafted for eternity.',
   alternates: {
     canonical: '/about',
+  },
+  openGraph: {
+    title: 'About Kaansa | Handcrafted Brass, Bronze and Copper from India',
+    description:
+      'Kaansa makes handcrafted brass, bronze and copper pieces for the puja room, the kitchen and the home. Rooted in tradition, crafted for eternity.',
   },
 };
 
 export default function AboutPage() {
   return (
-    <main className="bg-[var(--color-bg)] min-h-screen">
+    <div className="bg-[var(--color-bg)]">
       <AboutHero />
-      <AboutWhyKaansa />
-      <AboutPillars />
-      <AboutArtisans />
-      <AboutPrinciples />
-      <AboutImpact />
-      <AboutMission />
-    </main>
+      <AboutMetals />
+      <AboutExpect />
+      <AboutGifting />
+      <AboutLegacy />
+    </div>
   );
 }
