@@ -8,6 +8,7 @@ import CustomCursor from '@/components/ui/CustomCursor';
 import { CartProvider } from '@/components/cart/CartContext';
 import CartDrawer from '@/components/cart/CartDrawer';
 import { getMenu } from '@/lib/shopify';
+import { Analytics } from '@vercel/analytics/next';
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -80,6 +81,7 @@ export default async function RootLayout({
           <CartDrawer />
           <Footer menuItems={footerMenu} />
         </CartProvider>
+        <Analytics />
       </body>
     </html>
   );
