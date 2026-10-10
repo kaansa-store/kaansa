@@ -16,6 +16,9 @@ export const metadata: Metadata = {
     'Handcrafted Indian brass and bell-metal heritage objects. Ritual pooja essentials, timeless home decor, and traditional kitchenware made by master artisans.',
 };
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function HomePage() {
   const featuredProducts = await getProducts({ first: 4 });
 

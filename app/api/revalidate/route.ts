@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { revalidateTag } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 const TOPIC_TAG_MAP: Record<string, string[]> = {
   'products/create': ['products'],
@@ -8,10 +8,10 @@ const TOPIC_TAG_MAP: Record<string, string[]> = {
   'products/delete': ['products'],
   'products/publish': ['products'],
   'products/unpublish': ['products'],
-  'inventory_levels/update': ['inventory'],
-  'collections/create': ['collections'],
-  'collections/update': ['collections'],
-  'collections/delete': ['collections'],
+  'inventory_levels/update': ['inventory', 'products'],
+  'collections/create': ['collections', 'products'],
+  'collections/update': ['collections', 'products'],
+  'collections/delete': ['collections', 'products'],
 };
 
 function verifyHMAC(body: string, signature: string, secret: string): boolean {
@@ -45,8 +45,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ skipped: true, topic }, { status: 200 });
   }
 
-  tags.forEach((tag) => revalidateTag(tag, { expire: 0 }));
+  tags.forEach((tag) => {
+    revalidateTag(tag, 'max');
+  });
+
+  // Clear full route cache across all pages
+  try {
+    revalidatePath('/', 'layout');
+  } catch (e) {
+    console.error('revalidatePath error:', e);
+  }
 
   console.log(`[revalidate] topic=${topic} tags=${tags.join(',')}`);
   return NextResponse.json({ revalidated: true, topic, tags }, { status: 200 });
 }
+

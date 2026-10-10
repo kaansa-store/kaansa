@@ -72,10 +72,8 @@ export function normalizeMenuUrl(url: string): string {
   return url;
 }
 
-// In local development, bypass cache so Shopify Admin changes sync immediately.
-// In production, use force-cache with Shopify webhook revalidation.
-const defaultCache: RequestCache =
-  process.env.NODE_ENV === 'development' ? 'no-store' : 'force-cache';
+// Always use no-store so price, inventory, and catalog updates in Shopify Admin sync immediately.
+const defaultCache: RequestCache = 'no-store';
 
 export async function getMenu(handle: string): Promise<MenuItem[]> {
   try {
@@ -83,7 +81,7 @@ export async function getMenu(handle: string): Promise<MenuItem[]> {
       query: getMenuQuery,
       variables: { handle },
       tags: ['menus'],
-      cache: defaultCache,
+      cache: 'force-cache',
     });
 
     if (!res.data.menu?.items) {

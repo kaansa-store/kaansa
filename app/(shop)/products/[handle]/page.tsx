@@ -14,14 +14,8 @@ interface PageProps {
   params: Promise<{ handle: string }>;
 }
 
-export const revalidate = 3600;
-
-export async function generateStaticParams() {
-  const products = await getProducts(250);
-  return products.map((p) => ({
-    handle: p.handle,
-  }));
-}
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { handle } = await props.params;

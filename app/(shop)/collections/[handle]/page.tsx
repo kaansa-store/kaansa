@@ -28,13 +28,8 @@ const TYPE_BANNER_MAP: Record<string, string> = {
   'Kitchen & Tableware': '/images/collections-kitchen.jpg',
 };
 
-export const revalidate = 3600;
-
-export async function generateStaticParams() {
-  const collections = await getCollections(50);
-  const handles = collections.map((c) => ({ handle: c.handle }));
-  return [{ handle: 'all' }, ...handles];
-}
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { handle } = await props.params;

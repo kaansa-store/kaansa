@@ -12,7 +12,8 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 3600; // safety net
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function CollectionsPage() {
   const collections = await getCollections();

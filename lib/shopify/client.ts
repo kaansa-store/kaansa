@@ -7,7 +7,7 @@ export async function shopifyFetch<T>({
   query,
   variables,
   tags,
-  cache = 'force-cache',
+  cache = 'no-store',
   buyerIp,
 }: {
   query: string;
@@ -40,7 +40,7 @@ export async function shopifyFetch<T>({
     headers,
     body: JSON.stringify({ query, variables }),
     cache,
-    next: tags ? { tags } : undefined,
+    next: cache === 'no-store' ? undefined : (tags ? { tags } : undefined),
   });
 
   if (!res.ok) {
